@@ -1,0 +1,16 @@
+NbrBaku = 3
+NbrTeam = 2
+NbrBraw = 2
+
+Name: DAN
+Doom Card: NO
+Team: 1
+Bakugan[0]: Dragonoid
+	G power: 340
+	bool isPyrus = true;
+        bool isAquos = false;
+        bool isDarkus = false;
+        bool isVentus = false;
+        bool isSubterra = false;
+        bool isHaos = false;
+	Ability: 1
