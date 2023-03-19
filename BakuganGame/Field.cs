@@ -23,6 +23,10 @@ namespace BakuganGame
         public Brawler[] brawler;
         public Gate[,] gate;
 
+
+        string battleLog;// логирование процессов битвы во время выполнения приложения (Console Information)
+        string errorLog;// логирование процессов ошибок во время выполнения приложения (Console Information)
+
         public Field(uint NbrBaku, uint NbrTeam, uint NbrBraw)
         {
             this.NbrBaku = NbrBaku;
@@ -39,6 +43,26 @@ namespace BakuganGame
                     gate[i,j] = new Gate(NbrBaku, NbrTeam, NbrBraw,i,j);
 
             //Предполагается, что поле содержит в себе списки боевых связей между бакуганами.
+        }
+
+        /// <summary>
+        /// Записываем строку str в log
+        /// </summary>
+        /// <returns>Возвращает true - если удалось заполнить </returns>
+        public bool setBattleLog(string str)
+        {
+            battleLog = battleLog + str;
+            return true;
+        }
+
+        /// <summary>
+        /// Записываем строку str в log
+        /// </summary>
+        /// <returns>Возвращает true - если удалось заполнить </returns>
+        public bool setErrorLog(string str)
+        {
+            errorLog = errorLog + str;
+            return true;
         }
 
         /// <summary>

@@ -30,9 +30,9 @@ namespace BakuganGame
         /// Определим карту, зная код: команды, игрока, бакугана, способности. И вид способности (см функцию activate)
         /// </summary>
         /// <param name="teamID">ID команды</param>
-        /// <param name="brawlerID">ID бойца</param>
-        /// <param name="bakuganID">ID бакугана в инвентаре</param>
-        /// <param name="abilityID">ID способности в инвентаре</param>
+        /// <param name="brawlerID">ID бойца (Карта должна знать порядок своего владельца)</param>
+        /// <param name="bakuganID">ID бакугана в инвентаре за которым закреплена способность</param>
+        /// <param name="abilityID">ID способности в инвентаре (необходимо чтобы карта знала свой порядок в инвентаре)</param>
         /// <param name="abilityType">Тип карты способности (см функцию activate)</param>
         /// <returns>Возвращает true - если установить бакугана удалось</returns>
         public bool define(uint teamID, uint brawlerID, uint bakuganID, uint abilityID, uint abilityType)
@@ -48,11 +48,13 @@ namespace BakuganGame
 
 
         /// <summary>
-        /// Активировать работу карты способности
+        /// Активировать работу карты способности (Здесь описана основная логика всех карт)
         /// </summary>
         /// <returns>Возвращает true - если успешно завершилось</returns>
         public bool activate()
         {
+            // В будущем важно проверять возможно ли впринципе активировать функцию. Вдруг на 
+            // поле особые условия и нам нельзя активировать карту
             if (!isUsed && !isActivated && abilityType != 0)
             {
                 switch (abilityType)

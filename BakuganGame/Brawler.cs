@@ -111,9 +111,9 @@ namespace BakuganGame
         /// <returns>Возвращает true - если удалось активировать споосбность</returns>
         public bool useAbility(uint abilityID)
         {
-            
             if (field.NbrBaku >= usedAbilityCard)
             {
+                
                 bool ableActivate = abilityCard[abilityID].activate();
                 
                 if (ableActivate)
@@ -176,7 +176,7 @@ namespace BakuganGame
                     Console.WriteLine("y bigger that field.NbrBaku");
 
                 if (!field.gate[x, y].isBusy)
-                    Console.WriteLine("Brawler is trying to brawl in empty gate");
+                    Console.WriteLine("Brawler is trying to brawl on empty gate");
 
                 if(field.gate[x, y].gateOwner != this.brawlerID)
                     Console.WriteLine("this brawler is not the owner of selected gate");

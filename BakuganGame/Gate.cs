@@ -41,7 +41,7 @@ namespace BakuganGame
         }
 
         /// <summary>
-        /// Поместить карту gateID от бойца brawlerID 
+        /// Принудительно поместить карту gateID от бойца brawlerID 
         /// </summary>
         /// <param name="brawlerID">ID игрока</param>
         /// <param name="gateID">ID карты ворот у игрока</param>
@@ -96,7 +96,7 @@ namespace BakuganGame
             return true;
         }
 
-
+        // Дебаг
         public void printInfo()
         {
             Console.WriteLine($"x position: {x}");
