@@ -19,7 +19,6 @@ namespace BakuganGame
         public int y { get; private set; }
 
         public bool isBusy = false;// стоит чья-то карта
-        public bool isActivated = false;
         public uint bakuganCount { get; set; }
 
         public uint gateOwner { get; private set; }// 0 - ничья, иначе айди бойца
@@ -53,6 +52,8 @@ namespace BakuganGame
             gateCard = field.brawler[brawlerID].gateCard[gateID];
             field.brawler[brawlerID].gateCard[gateID].isPlaced = true;
 
+            field.setAppLog($"Gate ({x},{y}) message: brawler {brawlerID} stand gate {gateID}");
+
             return true;
         }
 
@@ -65,18 +66,19 @@ namespace BakuganGame
         {
             if (isBusy)
             {
-                gateCard.removeFromField();
+                field.setAppLog($"Gate ({x},{y}) message: gate erased, removed card from gate ");
+                gateCard.removeFromField();//нужна причина почему мы удаляем: конец битвы, конец игры
                 isBusy = false;
-                isActivated = false;
                 bakuganCount = 0;
+
                 gateCard = new GateCard();
 
                 return true;
             }
             else
             {
-                Console.WriteLine("Gate message: ERROR in removePlayerGate function");
-                Console.WriteLine("Why do you try to erase an empty gate?");
+                field.setAppLog($"Gate ({x},{y}) Error message: Error in removePlayerGate function");
+                field.setAppLog($"Gate ({x},{y}) Error message: Why do you try to erase an empty gate?");
 
                 return false;
             }
@@ -93,6 +95,8 @@ namespace BakuganGame
             this.field = field;
             gateCard.setField(field);
 
+            field.setAppLog($"Gate ({x},{y}) message: set field address");
+
             return true;
         }
 
@@ -102,7 +106,6 @@ namespace BakuganGame
             Console.WriteLine($"x position: {x}");
             Console.WriteLine($"y position: {y}");
             Console.WriteLine($"is busy: {isBusy}"); 
-            Console.WriteLine($"is activated: {isActivated}");
             Console.WriteLine($"count of bakugan in gate: {bakuganCount}");
         }
 

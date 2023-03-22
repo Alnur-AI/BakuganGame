@@ -12,22 +12,19 @@ namespace BakuganGame
     {
         uint teamID; // нужно чтобы карта отличала врагов от друзей
         uint brawlerID;// Ссылка на пользователя карты способности
-        uint bakuganID;// Ссылка на бакугана которому принадлежит способность 
         uint gateID;// Нужно понимать порядок карты в инвентаре
-        uint gateType;// 0 - пустая, остальное ссылка на базу
+        public uint gateType { get; set; }// 0 - пустая, остальное ссылка на базу
 
         bool isActivated = false;
         bool isUsed = false;
         public bool isPlaced{ get; set; }//true - in gate,
                                 //false - in pocket
 
-        int x;
-        int y;
-
         Field field;//Логика карты опирается на ситуацию на поле боя
 
         public GateCard()
         {
+            gateType = 1;
             isPlaced = false;
         }
 
@@ -37,17 +34,14 @@ namespace BakuganGame
         /// </summary>
         /// <param name="teamID">ID команды</param>
         /// <param name="brawlerID">ID бойца</param>
-        /// <param name="bakuganID">ID бакугана в инвентаре</param>
         /// <param name="gateID">ID карт ворот в инвентаре</param>
         /// <param name="gateType">Тип карты ворот (см функцию activate)</param>
         /// <returns>Возвращает true - если установить бакугана удалось</returns>
-        public bool define(uint teamID, uint brawlerID, uint bakuganID, uint gateID, uint gateType)
+        public bool define(uint teamID, uint brawlerID, uint gateID)
         {
             this.teamID = teamID;
             this.brawlerID = brawlerID;
-            this.bakuganID = bakuganID;
             this.gateID = gateID;
-            this.gateType = gateType;
 
             return true;
         }
@@ -92,7 +86,7 @@ namespace BakuganGame
         /// Активировать работу карты ворот (Здесь описана основная логика всех карт)
         /// </summary>
         /// <returns>Возвращает true - если успешно завершилось</returns>
-        public bool activate()
+        public bool activate(int x, int y)
         {
             // В будущем важно проверять возможно ли впринципе активировать функцию. Вдруг на 
             // поле особые условия и нам нельзя активировать карту
@@ -101,13 +95,13 @@ namespace BakuganGame
                 switch (gateType)
                 {
                     case 1://Привабить 500 себе
-                        field.brawler[brawlerID].bakugan[bakuganID].g += 500;
+                        field.brawler[brawlerID].bakugan[0].g += 500;
                         break;
                     case 2://Прибавить 500 себе и удалить 100 всем врагам
-                        field.brawler[brawlerID].bakugan[bakuganID].g += 500;
+                        field.brawler[brawlerID].bakugan[0].g += 500;
                         for (int i = 0; i < field.NbrBraw; i++)
-                            if (i != brawlerID && teamID != field.brawler[i].team)
-                                field.brawler[i].bakugan[bakuganID].g -= 100;
+                            if (i != brawlerID && teamID != field.brawler[i].teamID)
+                                field.brawler[i].bakugan[0].g -= 100;
                         break;
                 }
                 isActivated = true;

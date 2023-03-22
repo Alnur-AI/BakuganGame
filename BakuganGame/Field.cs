@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Xml;
+using static System.Reflection.Metadata.BlobBuilder;
+using System.Globalization;
 
 namespace BakuganGame
 {
@@ -20,48 +25,402 @@ namespace BakuganGame
         public uint NbrTeam { get; private set; }
         public uint NbrBraw { get; private set; }
 
+        uint currQueueID;//Текущий игрок по списку взял управление
+        public uint currGateX { get; private set; }//Осмотр ворот по Ох
+        public uint currGateY { get; private set; }//Осмотр ворот по Оу
+
         public Brawler[] brawler;
         public Gate[,] gate;
 
-
+        string appLog;// логирование процессов и ошибок всего приложения (Console Information)
         string battleLog;// логирование процессов битвы во время выполнения приложения (Console Information)
-        string errorLog;// логирование процессов ошибок во время выполнения приложения (Console Information)
 
-        public Field(uint NbrBaku, uint NbrTeam, uint NbrBraw)
+        public Field()
         {
-            this.NbrBaku = NbrBaku;
-            this.NbrTeam = NbrTeam;
-            this.NbrBraw = NbrBraw;
+            currGateX = 0;
+            currGateY = 0;
+
+            setAppLog($"Connecting battle.xml");
+            bool xmlFileFound = false;
+            XmlDocument xmlDoc = new XmlDocument();
+            while (!xmlFileFound)
+            {
+                try
+                {
+                    if (File.Exists("battle.xml"))
+                    {
+                        xmlDoc.Load("battle.xml");
+
+                        setAppLog($"Connecting constants.xml");
+                        XmlNodeList constants = xmlDoc.GetElementsByTagName("Constants");
+                        foreach (XmlNode cnst in constants)
+                        {
+                            XmlNodeList cnstTmp = cnst.ChildNodes;
+                            foreach (XmlNode cnstItem in cnstTmp)
+                            {
+                                if (cnstItem.Name == "NbrBaku")
+                                    NbrBaku = uint.Parse(cnstItem.InnerText);
+                                if (cnstItem.Name == "NbrTeam")
+                                    NbrTeam = uint.Parse(cnstItem.InnerText);
+                                if (cnstItem.Name == "NbrBraw")
+                                    NbrBraw = uint.Parse(cnstItem.InnerText);
+                            }
+                        }
+
+                        xmlFileFound = true;
+                    }
+                    else
+                    {
+                        setAppLog($"ERROR: File battle.xml does not exists in root directory.");
+                        Console.WriteLine("ERROR: File battle.xml does not exists in root directory.");
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    // Handle any exceptions that occur during parsing
+                    Console.WriteLine("Error parsing XML file: " + ex.Message);
+                }
+                Thread.Sleep(1000);
+            }
+
+            setAppLog($"Number of Bakugan {NbrBaku}");
+            setAppLog($"Number of Team {NbrTeam}");
+            setAppLog($"Number of Brawler {NbrBraw}\n\n");
+
+
+            setAppLog($"Initializing field");
 
             brawler = new Brawler[NbrBraw];
             for (uint i = 0; i < NbrBraw; i++)
-                brawler[i] = new Brawler(NbrBaku, NbrTeam, NbrBraw,i);
-            
+            {
+                brawler[i] = new Brawler(NbrBaku, NbrTeam, NbrBraw, i);
+                setAppLog($"Field message: Allocate memory to Brawler {i}");
+            }
+
             gate = new Gate[NbrBraw, NbrBaku];
             for (int i = 0; i < NbrBraw; i++)
                 for (int j = 0; j < NbrBaku; j++)
-                    gate[i,j] = new Gate(NbrBaku, NbrTeam, NbrBraw,i,j);
+                {
+                    gate[i, j] = new Gate(NbrBaku, NbrTeam, NbrBraw, i, j);
+                    setAppLog($"Field message: Allocate memory to Gate ({i}, {j})");
+                }
+            setAppLog($"Connecting brawlers from battle.xml");
+            XmlNodeList xmlBrawler = xmlDoc.GetElementsByTagName("Brawler");
+            for (int i = 0; i < xmlBrawler.Count; i++)
+            {
+                int j = 0;
+                XmlNodeList brwlrTmp = xmlBrawler[i].ChildNodes;
+                foreach (XmlNode brwlrItem in brwlrTmp)
+                {
+                    if (brwlrItem.Name == "TeamID")
+                    {
+                        brawler[i].teamID = uint.Parse(brwlrItem.InnerText);
+                        Console.WriteLine("TeamID " + brawler[i].teamID);
+                    }
+                    if (brwlrItem.Name == "Name")
+                    {
+                        
+                        brawler[i].name = brwlrItem.InnerText;
+                        Console.WriteLine("Name " + brawler[i].name);
+                    }
+                    if (brwlrItem.Name == "BID")
+                    {
+                        brawler[i].BID = Convert.ToUInt64(brwlrItem.InnerText, 16);
+                        Console.WriteLine("BID " + brawler[i].BID);
+                    }
+                    if (brwlrItem.Name == "Rank")
+                    {
+                        brawler[i].rank = ulong.Parse(brwlrItem.InnerText);
+                        Console.WriteLine("Rank " + brawler[i].rank);
+                    }
+                    if (brwlrItem.Name == "Money")
+                    {
+                        brawler[i].money = double.Parse(brwlrItem.InnerText);
+                        Console.WriteLine("Money " + brawler[i].money);
+                    }
+                    if (brwlrItem.Name == "DoomCard")
+                    {
+                        if (brwlrItem.InnerText == "Yes")
+                            brawler[i].avDoom = true;
+                        if (brwlrItem.InnerText == "No")
+                            brawler[i].avDoom = false;
+                        Console.WriteLine("DoomCard" + brawler[i].avDoom);
+                    }
 
-            //Предполагается, что поле содержит в себе списки боевых связей между бакуганами.
+                    
+                    if (brwlrItem.Name == "Bakugan")
+                    {
+                        brawler[i].bakugan[j].state = 0;
+                        Console.WriteLine(j);
+                        XmlNodeList xmlBakugan = brwlrItem.ChildNodes;
+                        foreach (XmlNode bakuItem in xmlBakugan)
+                        {
+                            if (bakuItem.Name == "Name")
+                            {
+                                brawler[i].bakugan[j].name = bakuItem.InnerText;// +xmlBakugan[j].InnerText;
+                                Console.WriteLine("Name " + brawler[i].bakugan[j].name);
+                            }
+                                
+                            if (bakuItem.Name == "GPower")
+                            {
+                                brawler[i].bakugan[j].g = int.Parse(bakuItem.InnerText);
+                                brawler[i].bakugan[j].gGame = int.Parse(bakuItem.InnerText);
+                                brawler[i].bakugan[j].gGlobal = int.Parse(bakuItem.InnerText);
+                                Console.WriteLine("GPower " + brawler[i].bakugan[j].g);
+                            }
+                            if (bakuItem.Name == "Attribute")
+                            {
+                                switch (bakuItem.InnerText)
+                                {
+                                    case "Pyrus":
+                                        brawler[i].bakugan[j].isPyrus = true;
+                                        break;
+                                    case "Aquos":
+                                        brawler[i].bakugan[j].isAquos = true;
+                                        break;
+                                    case "Darkus":
+                                        brawler[i].bakugan[j].isDarkus = true;
+                                        break;
+                                    case "Ventus":
+                                        brawler[i].bakugan[j].isVentus = true;
+                                        break;
+                                    case "Subterra":
+                                        brawler[i].bakugan[j].isSubterra = true;
+                                        break;
+                                    case "Haos":
+                                        brawler[i].bakugan[j].isHaos = true;
+                                        break;
+                                }
+                            }
+                            
+                        }
+                        j++;
+                    }
+                    if (brwlrItem.Name == "AbilityCard")
+                    {
+                        XmlNodeList xmlAbiCard = brwlrItem.ChildNodes;
+                        for (int k = 0; k < xmlAbiCard.Count; k++)
+                        {
+                            if (xmlAbiCard[k].Name == "AbilityID")
+                            {
+                                brawler[i].abilityCard[k].abilityType = uint.Parse(xmlAbiCard[k].InnerText);
+                                Console.WriteLine("AbilityID " + brawler[i].abilityCard[k].abilityType);
+                            }
+                        }
+                    }
+                    if (brwlrItem.Name == "GateCard")
+                    {
+                        XmlNodeList xmlGtCard = brwlrItem.ChildNodes;
+                        for (int k = 0; k < xmlGtCard.Count; k++)
+                        {
+                            if (xmlGtCard[k].Name == "GateID")
+                            {
+                                brawler[i].gateCard[k].gateType = uint.Parse(xmlGtCard[k].InnerText);
+                                Console.WriteLine("GateID " + brawler[i].gateCard[k].gateType);
+                            }
+                        }
+                    }
+                }
+            }
+            
+            setAppLog($"Field initialized\n\n");
+
+            //Предполагается, что поле содержит в себе списки боевых связей между бакуганами. Надо добавить
+
         }
 
+
+
+
+
+
+
+
+
+
+
         /// <summary>
-        /// Записываем строку str в log
+        /// Записываем строку str в AppLog
         /// </summary>
         /// <returns>Возвращает true - если удалось заполнить </returns>
-        public bool setBattleLog(string str)
+        public bool setAppLog(string str)
         {
-            battleLog = battleLog + str;
+            appLog = appLog + str + '\n';
             return true;
         }
 
         /// <summary>
-        /// Записываем строку str в log
+        /// Записываем строку str в BatteLog
         /// </summary>
         /// <returns>Возвращает true - если удалось заполнить </returns>
-        public bool setErrorLog(string str)
+        public bool setBattleLog(string str)
         {
-            errorLog = errorLog + str;
+            battleLog = battleLog + str + '\n';
+            return true;
+        }
+        
+        /// <summary>
+        /// Записываем строку appLog в файл
+        /// </summary>
+        /// <returns>Возвращает true - если удалось заполнить </returns>
+        public bool printAppLog()
+        {
+            try
+            {
+                //string path = @"C:\Users\Hikari\Desktop\bakugan\newproject\BakuganGame\BakuganGame\AppLog.txt";
+                string path = "Applog.txt";
+                StreamWriter sw = new StreamWriter(path);
+
+                sw.Write(appLog);
+                sw.Close();
+                
+            }
+            catch(Exception e) 
+            {
+                Console.WriteLine("Exception: " + e.Message);
+            }
+            return true;
+        }
+
+        public bool controlField(ConsoleKeyInfo key)
+        {
+            if (key.Key == ConsoleKey.LeftArrow || key.Key == ConsoleKey.A)
+            {
+                
+                if (currGateX > 0)
+                    currGateX--;
+                else if (currGateX <= 0)
+                    currGateX = 0;
+            }
+            if (key.Key == ConsoleKey.RightArrow || key.Key == ConsoleKey.D)
+            {
+                if(currGateX < NbrBraw-1)
+                    currGateX++;
+                else if(currGateX >= NbrBraw)
+                    currGateX = NbrBraw-1;
+            }
+            if (key.Key == ConsoleKey.UpArrow || key.Key == ConsoleKey.W)
+            {
+                if (currGateY > 0)
+                    currGateY--;
+                else if (currGateY <= 0)
+                    currGateY = 0;
+            }
+            if (key.Key == ConsoleKey.DownArrow || key.Key == ConsoleKey.S)
+            {
+                if (currGateY < NbrBaku - 1)
+                    currGateY++;
+                else if (currGateY >= NbrBaku)
+                    currGateY = NbrBaku-1;
+            }
+            return true;
+        }
+
+        public void printText(ConsoleColor clr,int x,int y, string str)
+        {
+            ConsoleColor old = Console.ForegroundColor;
+
+            Console.SetCursorPosition(x, y);
+            Console.ForegroundColor = clr;
+            Console.Write(str);
+
+            Console.ForegroundColor = old;
+        }
+        public void printText(ConsoleColor clrTex,ConsoleColor clrBgr, int x, int y, string str)
+        {
+            ConsoleColor oldTex = Console.ForegroundColor;
+            ConsoleColor oldBgr = Console.BackgroundColor;
+
+            Console.SetCursorPosition(x, y);
+            Console.ForegroundColor = clrTex;
+            Console.BackgroundColor = clrBgr;
+            Console.Write(str);
+
+            Console.ForegroundColor = oldTex;
+            Console.BackgroundColor = oldBgr;
+        }
+        public bool drawField()
+        {
+            // Field
+            printText(ConsoleColor.Red,13,0,"Field");
+            for (int j = 0; j < NbrBaku; j++)
+                for (int i = 0; i < NbrBraw; i++)
+                {
+                    if (gate[i, j].isBusy)
+                        printText(ConsoleColor.Green, 3 + i, 2 + j, "#");
+                    else
+                        printText(ConsoleColor.White, 3 + i, 2 + j, ".");
+                    if( i == currGateX && j == currGateY)
+                        printText(ConsoleColor.Red, 3 + i, 2 + j, "#");
+
+                }
+            
+            return true;
+        }
+
+        public bool drawFieldInfo()
+        {
+            //Field Information
+            printText(ConsoleColor.Red, 13, 10, "Field Info");
+            printText(ConsoleColor.White, 0, 11, "---------------------------------------");
+
+            string bakuLeft;
+            int tempTeamCnt = 0;
+            for (int j = 0; j <= NbrTeam; j++)
+            {
+                printText(ConsoleColor.Black, ConsoleColor.Gray, 0, 12 + tempTeamCnt, "Team "+(j)+"    Bakugan     Ability     Gate ");
+                tempTeamCnt++;
+                for (int i = 0; i < NbrBraw; i++)
+                {
+                    if(j == brawler[i].teamID)
+                    {
+                        bakuLeft = new string('*', (int)(NbrBaku - brawler[i].loseBakugan));
+                        printText(ConsoleColor.White, 0, 12 + tempTeamCnt, "" + i);
+                        printText(ConsoleColor.Yellow, 12, 12 + tempTeamCnt, bakuLeft);
+                        printText(ConsoleColor.White, 25, 12 + tempTeamCnt, "" + (NbrBaku - brawler[i].usedAbilityCard));
+                        printText(ConsoleColor.White, 35, 12 + tempTeamCnt, "" + (NbrBaku - brawler[i].usedGateCard));
+                        tempTeamCnt++;
+                    }
+                    //12 + (j)* ((int)NbrBraw+1)
+                    //12 + (j) * ((int)NbrBraw+1) + i + 1
+                }
+            }
+
+            return true;
+        }
+
+        public bool drawGateInfo()
+        {
+            //Gate Info
+            printText(ConsoleColor.Red, 55, 10, "Gate Info");
+            printText(ConsoleColor.White, 40, 11, "---------------------------------------");
+
+            int gTotal = 0;
+            int tempTeamCnt = 0;
+            for (int j = 1; j <= NbrTeam; j++)
+            {
+                printText(ConsoleColor.Black,ConsoleColor.Gray, 40, 12 + tempTeamCnt, "Team " + (j) + "                        G power  ");
+                tempTeamCnt++;
+
+                for (int i = 0; i < gate[currGateX, currGateY].bakuganCount; i++)
+                {
+                    if (j == gate[currGateX, currGateY].bakugan[i].team)
+                    {
+                        //ДОРАБОТАТЬ НАЗВАНИЯ
+                        printText(ConsoleColor.White, 40, 12 + tempTeamCnt, "" + gate[currGateX, currGateY].bakugan[i].owner + ":" + "bakugan");
+                        printText(ConsoleColor.White, 72, 12 + tempTeamCnt, "" + gate[currGateX, currGateY].bakugan[i].g);
+                        gTotal += gate[currGateX, currGateY].bakugan[i].g;
+                        tempTeamCnt++;
+                    }
+                }
+                printText(ConsoleColor.White, 40, 12 + tempTeamCnt, "Total G power: ");
+                printText(ConsoleColor.White, 72, 12 + tempTeamCnt, "" + gTotal);
+                tempTeamCnt++;
+                gTotal = 0;
+                
+            }
+            
             return true;
         }
 
@@ -72,11 +431,17 @@ namespace BakuganGame
         public bool setReferenceField()
         {
             for (int i = 0; i < NbrBraw; i++)
+            {
                 brawler[i].setField(this);
-
+                setAppLog($"Field message: set field address to brawler {i}");
+            }
+                
             for (int i = 0; i < NbrBraw; i++)
                 for (int j = 0; j < NbrBaku; j++)
+                {
                     gate[i, j].setField(this);
+                    setAppLog($"Field message: set field address to gate ({i}, {j})");
+                }
 
             return true;
         }

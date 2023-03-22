@@ -10,16 +10,21 @@ namespace BakuganGame
 {
     internal class Brawler
     {   
-        public uint team { get; set; }   // 0 1 2 3 4
+        public string name { get; set; }
+        public ulong BID{ get; set; }
+        public ulong rank { get; set; }
+        public double money { get; set; }
+        public uint teamID { get; set; }   // 0 1 2 3 4
         public uint brawlerID { get; set; }   // уникальный номер в списке игроков
         public uint queueID { get; set; }// 0 1 2 3 4 5 6 очередь в игре
 
-        bool inGame = false;
-	    bool isActive = false;
+        bool inGame = false;// Все еще играет?
 
-        int  score;
-        uint winBakugan;
-        uint loseBakugan;
+        public bool avDoom { get; set; }// Карта смерти в наличии?
+        public bool setDoom { get; set; }// Карта смерти установлена?
+
+        uint winBakugan = 0;// выиграл бакугана
+        public uint loseBakugan{ get; private set; }// потерял своих бакуганов
 
         public uint usedGateCard{ get; private set; }  // max NbrBaku
         public uint usedAbilityCard{ get; private set; }  // max NbrBaku
@@ -27,14 +32,24 @@ namespace BakuganGame
 
         Field field;//Боец ориентируется в пространстве
         public Bakugan[] bakugan;
-        public AbilityCard[] abilityCard;// в будущем должен быть приватный
-        public GateCard[] gateCard;// в будущем должен быть приватный
+        public AbilityCard[] abilityCard { get; private set; } // в будущем должен быть приватный
+        public GateCard[] gateCard { get; private set; } // в будущем должен быть приватный
 
         public Brawler (uint NbrBaku, uint NbrTeam, uint NbrBraw, uint brawlerID)
         {
+            setDoom = false;
+
             bakugan = new Bakugan[NbrBaku];
+            for (int i = 0; i < NbrBaku; i++)
+                bakugan[i] = new Bakugan();
+
             abilityCard = new AbilityCard[3*NbrBaku];
+            for (int i = 0; i < 3*NbrBaku; i++)
+                abilityCard[i] = new AbilityCard();
+
             gateCard = new GateCard[NbrBaku];
+            for (int i = 0; i < NbrBaku; i++)
+                gateCard[i] = new GateCard();
 
             usedGateCard = 0;
             usedAbilityCard = 0;
@@ -65,68 +80,72 @@ namespace BakuganGame
                     bakugan[bakuganID].state = 1;
 
                     field.gate[x, y].bakuganCount++;
-                    
+
+                    field.setAppLog($"Brawler {brawlerID} message: bakugan {bakuganID} placed in gate ({x}, {y})");
+
                     return true;
                 }
                 else
                 {
-                    Console.WriteLine("Brawler message: ERROR in throwBakugan function");
-                    Console.WriteLine("Gate is overloaded");
+                    field.setAppLog($"Brawler {brawlerID} Error message: ERROR in throwBakugan function");
+                    field.setAppLog($"Brawler {brawlerID} Error message: Gate is overloaded");
 
                     return false;
                 }
             }
             else
             {
-                Console.WriteLine("Brawler message: ERROR in throwBakugan function");
+                field.setAppLog($"Brawler {brawlerID} Error message: ERROR in throwBakugan function");
 
                 if (0 > x)
-                    Console.WriteLine("x less that 0");
+                    field.setAppLog($"Brawler {brawlerID} Error message: x = {x} less that 0");
                 
                 if (x >= field.NbrBraw)
-                    Console.WriteLine("x bigger that field.NbrBraw");
+                    field.setAppLog($"Brawler {brawlerID} Error message: x = {x} bigger that field.NbrBraw");
                 
                 if (0 > y)
-                    Console.WriteLine("y less that 0");
+                    field.setAppLog($"Brawler {brawlerID} Error message: y = {y} less that 0");
                 
                 if (y >= field.NbrBaku)
-                    Console.WriteLine("y bigger that field.NbrBaku");
+                    field.setAppLog($"Brawler {brawlerID} Error message: y = {y} bigger that field.NbrBaku");
 
                 if (!field.gate[x, y].isBusy)
-                    Console.WriteLine("Brawler is trying to brawl in empty gate");
+                    field.setAppLog($"Brawler {brawlerID} Error message: Brawler is trying to brawl in empty gate ({x},{y})");
 
                 if (bakugan[bakuganID].state != 0)
-                    Console.WriteLine("bakugan is not in pocket");
+                    field.setAppLog($"Brawler {brawlerID} Error message: bakugan is not in pocket");
 
                 return false;
             }
                         
         }
-        
+
 
         /// <summary>
         /// Боец активирует карту способности из арсенала под номером abilityID
         /// </summary>
         /// <param name="abilityID">Номер карты в арсенале</param>
+        /// <param name="bakuganID">Бакуган, на котором будет использована карта способности</param>
         /// <returns>Возвращает true - если удалось активировать споосбность</returns>
-        public bool useAbility(uint abilityID)
+        public bool useAbility(uint abilityID,uint bakuganID)
         {
             if (field.NbrBaku >= usedAbilityCard)
             {
-                
-                bool ableActivate = abilityCard[abilityID].activate();
+                bool ableActivate = abilityCard[abilityID].activate(bakuganID);
                 
                 if (ableActivate)
                 {
                     usedAbilityCard += 1;
                     return true;
                 }
+                field.setAppLog($"Brawler {brawlerID} message: ability {abilityID} activated");
+
                 return false;
             }
             else
             {
-                Console.WriteLine("Brawler message: ERROR in useAbility function");
-                Console.WriteLine("Used maximum of available cards");
+                field.setAppLog($"Brawler {brawlerID} Error message: ERROR in useAbility function");
+                field.setAppLog($"Brawler {brawlerID} Error message: Used maximum of available cards");
 
                 return false;
             }
@@ -148,38 +167,42 @@ namespace BakuganGame
                 field.gate[x,y].gateOwner == this.brawlerID)
             {
                 if(field.NbrBaku >= usedGateCard)
-                    return field.gate[x, y].gateCard.activate();
+                {
+                    field.setAppLog($"Brawler {brawlerID} message: gate ({x},{y}) is activated");
+                    return field.gate[x, y].gateCard.activate(x,y);
+                }
+                    
                 
                 else
                 {
-                    Console.WriteLine("Brawler message: ERROR in useGate function");
-                    Console.WriteLine($"Number of used cards: {usedGateCard}");
-                    Console.WriteLine("Used maximum of available cards");
+                    field.setAppLog($"Brawler {brawlerID} Error message: ERROR in useGate function");
+                    field.setAppLog($"Brawler {brawlerID} Error message: Number of used cards: {usedGateCard}");
+                    field.setAppLog($"Brawler {brawlerID} Error message: Used maximum of available cards");
 
                     return false;
                 }
             }
             else
             {
-                Console.WriteLine("Brawler message: ERROR in throwBakugan function");
+                field.setAppLog($"Brawler {brawlerID} Error message: ERROR in useGate function");
 
                 if (0 > x)
-                    Console.WriteLine("x less that 0");
+                    field.setAppLog($"Brawler {brawlerID} Error message: x = {x} less that 0");
 
                 if (x >= field.NbrBraw)
-                    Console.WriteLine("x bigger that field.NbrBraw");
+                    field.setAppLog($"Brawler {brawlerID} Error message: x = {x} bigger that field.NbrBraw");
 
                 if (0 > y)
-                    Console.WriteLine("y less that 0");
+                    field.setAppLog($"Brawler {brawlerID} Error message: y = {y} less that 0");
 
                 if (y >= field.NbrBaku)
-                    Console.WriteLine("y bigger that field.NbrBaku");
+                    field.setAppLog($"Brawler {brawlerID} Error message: y = {y} bigger that field.NbrBaku");
 
                 if (!field.gate[x, y].isBusy)
-                    Console.WriteLine("Brawler is trying to brawl on empty gate");
+                    field.setAppLog($"Brawler {brawlerID} Error message: Brawler {brawlerID} is trying to brawl on empty gate ({x},{y})");
 
                 if(field.gate[x, y].gateOwner != this.brawlerID)
-                    Console.WriteLine("this brawler is not the owner of selected gate");
+                    field.setAppLog($"Brawler {brawlerID} Error message: this brawler {brawlerID} is not the owner of selected gate (true owner is {field.gate[x, y].gateOwner})");
 
                 return false;
             }
@@ -205,35 +228,44 @@ namespace BakuganGame
 
                 if (ableActivate)
                 {
+                    field.setAppLog($"Brawler {brawlerID} message: gate card {gateID} is placed on gate ({x},{y})");
                     usedGateCard += 1;
-                    return true;
                 }
-                return false;
+                return ableActivate;
             }
             //return field.NbrBaku > (usedGateCard += 1) ? true : false;
             else
             {
-                Console.WriteLine("Brawler message: ERROR in setGate function");
+                field.setAppLog($"Brawler {brawlerID} Error message: ERROR in setGate function");
 
                 if (0 > x)
-                    Console.WriteLine("x less that 0");
+                    field.setAppLog($"Brawler {brawlerID} Error message: x = {x} less that 0");
 
                 if (x >= field.NbrBraw)
-                    Console.WriteLine("x bigger that field.NbrBraw");
+                    field.setAppLog($"Brawler {brawlerID} Error message: x = {x} bigger that field.NbrBraw");
 
                 if (0 > y)
-                    Console.WriteLine("y less that 0");
+                    field.setAppLog($"Brawler {brawlerID} Error message: y = {y} less that 0");
 
                 if (y >= field.NbrBaku)
-                    Console.WriteLine("y bigger that field.NbrBaku");
+                    field.setAppLog($"Brawler {brawlerID} Error message: y = {y} bigger that field.NbrBaku");
 
                 if (field.gate[x, y].isBusy)
-                    Console.WriteLine("Brawler is trying to set on non empty gate");
+                    field.setAppLog($"Brawler {brawlerID} Error message: Brawler is trying to set on non empty gate");
 
                 return false;
             }
         }
 
+        public bool setTeam(uint teamID)
+        {
+            this.teamID = teamID;
+            for (int i = 0; i < field.NbrBaku; i++)
+            {
+                bakugan[i].define(brawlerID, teamID);
+            }
+            return true;
+        }
 
         /// <summary>
         /// Бойцу важно знать обстановку на поле. Добавляем ссылку field на всё поле
@@ -246,22 +278,70 @@ namespace BakuganGame
 
             for (int i = 0; i < 3 * field.NbrBaku; i++)
             {
-                abilityCard[i] = new AbilityCard();
                 abilityCard[i].setField(field);
             }
             for (int i = 0; i < field.NbrBaku; i++)
             {
-                gateCard[i] = new GateCard();
                 gateCard[i].setField(field);
             }
-            for (int i = 0; i < field.NbrBaku; i++)
-            {
-                bakugan[i] = new Bakugan();
-                bakugan[i].define(queueID, team);
-            }
+            
 
             return true;
         }
 
+        /// <summary>
+        /// Установить карту смерти
+        /// </summary>
+        /// <returns>Возвращает true - если удалось правильно заполнить поле</returns>
+        public bool setDoomCard()
+        {
+            if (avDoom && !setDoom )
+            {
+                setDoom = true;
+                field.setAppLog($"Brawler {brawlerID} message: brawler set doom card");
+                return true;
+            }
+            else 
+            {
+                field.setAppLog($"Brawler {brawlerID} Error message: ERROR in setDoomCard");
+                if(!avDoom)
+                    field.setAppLog($"Brawler {brawlerID} Error message: player don't have a doom card");
+                if(setDoom)
+                    field.setAppLog($"Brawler {brawlerID} Error message: player set doom card already");
+                return false; 
+            }
+        }
+        
+        /// <summary>
+        /// Убрать карту смерти
+        /// </summary>
+        /// <returns>Возвращает true - если удалось правильно заполнить поле</returns>
+        public bool removeDoomCard()
+        {
+            if (avDoom && setDoom)
+            {
+                setDoom = false;
+                field.setAppLog($"Brawler {brawlerID} message: brawler remove doom card");
+                return true;
+            }
+            else
+            {
+                field.setAppLog($"Brawler {brawlerID} Error message: ERROR in setDoomCard");
+                if (!avDoom)
+                    field.setAppLog($"Brawler {brawlerID} Error message: player don't have a doom card");
+                if (!setDoom)
+                    field.setAppLog($"Brawler {brawlerID} Error message: player removed doom card already");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Пропустить/завершить текущий ход
+        /// </summary>
+        /// <returns>Возвращает true - если удалось правильно заполнить поле</returns>
+        public bool skipTurn()
+        {
+            return true;
+        }
     }
 }

@@ -11,12 +11,14 @@ namespace BakuganGame
     internal class Bakugan
     {
         //ID in fiel
+        public string name { get; set; }
         uint bakuganID;
-        public int bakuganInGateID { get; set; }
+        public int bakuganInGateID { get; set; }//ID на вороте (-1 значит что бакуган в инвентаре)
         int x;
         int y;
 
         public int state { get; set; }
+                      //-1 - does not exist
                       //0 - in pocket,
                       //1 - in card,
                       //2 - in battle,
@@ -28,34 +30,36 @@ namespace BakuganGame
         public uint owner { get; private set; }//BrawlerID
 
         //G level
-        public int g { get; set; }
-        public int gGame { get; set; }
-        public int gGlobal { get; set; }
+        public int g { get; set; }// в локальном бою
+        public int gGame { get; set; }// изменен начальный уровень на время игры
+        public int gGlobal { get; set; }// изменен начальный уровень навсегда
 
         //Atribute
-        public bool isPyrus { get; private set; }
-        public bool isAquos { get; private set; }
-        public bool isDarkus { get; private set; }
-        public bool isVentus { get; private set; }
-        public bool isSubterra { get; private set; }
-        public bool isHaos { get; private set; }
+        public bool isPyrus { get;  set; }
+        public bool isAquos { get;  set; }
+        public bool isDarkus { get;  set; }
+        public bool isVentus { get;  set; }
+        public bool isSubterra { get;  set; }
+        public bool isHaos { get;  set; }
 
         public Bakugan()
         {
+            state = -1;
+            bakuganInGateID = -1;
+            gGlobal = gGame = this.g = 0;
         }
 
 
         /// <summary>
-        /// Определим карту, зная код: команды, игрока
+        /// Определим бакугана, зная код: команды, игрока
         /// </summary>
         /// <param name="team">ID команды</param>
         /// <param name="brawlerID">ID бойца</param>
         /// <returns>Возвращает true - если установить бакугана удалось</returns>
-        public bool define(uint brawlerID, uint team)
+        public bool define(uint brawlerID, uint teamID)
         {
             owner = brawlerID;
-            this.team = team;
-
+            team = teamID;
             return true;
         }
 

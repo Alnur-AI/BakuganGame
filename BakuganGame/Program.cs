@@ -9,7 +9,7 @@ namespace BakuganGame
      Входные данные (из конфига): 
           * NbrBaku - Количество доступных бакуганов
           * NbrTeam - Количество команд 
-          * NbrBraw - Количество бойцов
+          * NbrBraw - Количество бойцов (независимо от команды)
           *           Бойцы с фиксированным арсеналом
           *           и принадлежность к команде
      Константы:
@@ -27,52 +27,36 @@ namespace BakuganGame
     {
         public static bool defineBrawlers(Field field)
         {
-            field.brawler[0].team = 1;
-            field.brawler[0].bakugan[0].setBakugan(true, false, false, false, false, false, 300);
-            field.brawler[0].abilityCard[0].define(1, 0, 0, 0, 1);
-            field.brawler[0].abilityCard[1].define(1, 0, 1, 1, 2);
-            field.brawler[0].abilityCard[2].define(1, 0, 2, 2, 3);
-            field.brawler[0].gateCard[0].define(1, 0, 0, 0, 1);
+            field.setAppLog($"\n\nDefine all players");
 
-            field.brawler[1].team = 2;
+            for (uint i = 0; i < field.NbrBraw; i++)
+            {
+                uint team = field.brawler[i].teamID;
+                field.brawler[i].setTeam(team);
+                for (uint j = 0; j < 3*field.NbrBaku; j++)
+                {
+                    field.brawler[i].abilityCard[j].define(team, i, j);
+                }
+                for (uint j = 0; j < field.NbrBaku; j++)
+                {
+                    field.brawler[i].gateCard[j].define(team, i, j);
+                }
+                
+            }
+
+            /*
+            field.brawler[1].setTeam(2);
             field.brawler[1].bakugan[0].setBakugan(false, false, true, false, false, false, 330);
-            field.brawler[1].abilityCard[0].define(2, 1, 0, 0, 1);
-            field.brawler[1].abilityCard[1].define(2, 1, 1, 1, 2);
-            field.brawler[1].abilityCard[2].define(2, 1, 2, 2, 3);
-            field.brawler[1].gateCard[0].define(2, 1, 0, 0, 2);
+            field.brawler[1].abilityCard[0].define(2, 1, 0, 0);
+            field.brawler[1].abilityCard[1].define(2, 1, 1, 1);
+            field.brawler[1].abilityCard[2].define(2, 1, 2, 2);
+            field.brawler[1].gateCard[0].define(2, 1, 0, 0);
+            field.brawler[1].gateCard[1].define(2, 1, 0, 0);
+            field.brawler[1].gateCard[2].define(2, 1, 0, 0);
+            */
+            field.setAppLog($"\n\nDefine is complete");
 
             // Завершаем формировать бойцов
-            return true;
-        }
-
-        public static bool battle(Field field)
-        {
-            // Начало игры (все ставят карту ворот)
-            field.brawler[0].setGate(0, 0, 0);
-            field.brawler[1].setGate(1, 0, 0);
-
-
-            // Цикл боя типо
-            field.brawler[0].throwBakugan(1, 0, 0);
-            field.brawler[1].throwBakugan(1, 0, 0);
-
-            field.brawler[0].useAbility(0);
-            field.brawler[1].useAbility(0);
-
-            field.brawler[0].useGate(0, 0);
-
-            // Выход из боя
-            return true;
-        }
-
-        public static bool endBattle(Field field)
-        {
-            // Результат битвы и закрытие битвы
-            field.gate[1, 0].removePlayerGate();
-            field.brawler[0].abilityCard[0].deactivate();
-            field.brawler[1].abilityCard[0].deactivate();
-            //field.gate[0, 0].removePlayerGate();
-
             return true;
         }
 
@@ -95,7 +79,7 @@ namespace BakuganGame
             */
 
 
-            // Field
+            // Field (done)
             Console.SetCursorPosition(13, 0);
             Console.ForegroundColor = ConsoleColor.Red;
             Console.Write("Field");
@@ -123,7 +107,7 @@ namespace BakuganGame
             Console.Write("******");
 
 
-            //Field Information
+            //Field Information (done)
             Console.SetCursorPosition(13, 10);
             Console.ForegroundColor = ConsoleColor.Red;
             Console.Write("Field Info");
@@ -200,8 +184,7 @@ namespace BakuganGame
             Console.Write("         3");
 
 
-            //Gate Info
-            //Field Information
+            //Gate Info (done)
             Console.SetCursorPosition(55, 10);
             Console.ForegroundColor = ConsoleColor.Red;
             Console.Write("Gate Info");
@@ -335,38 +318,78 @@ namespace BakuganGame
         static void Main(string[] args)
         {
             // Пункт 1: Вытащить из файла вводные данные
-            uint NbrBaku = 3;/// - Количество доступных бакуганов
-            uint NbrTeam = 2;/// - Количество команд
-            uint NbrBraw = 2;/// - Количество бойцов (независимо от команды)
-
-
-            // Пункт 2: Начать заполнять поле информацией по бойцам
-            Field field = new Field(NbrBaku, NbrTeam, NbrBraw);
+            //          Начать заполнять поле информацией по бойцам
+            Field field = new Field();
             field.setReferenceField();
-
             defineBrawlers(field);
 
+            ConsoleKeyInfo key;
+            while (true)
+            {
+                while (!Console.KeyAvailable)
+                {
+                    // Ожидание нажатия клавиши
+                }
+                key = Console.ReadKey(true);
 
-            // Пункт 3.1: Запустить бесконечный цикл по каждому игроку (Очередь queueMain)
-            battle(field);
+                field.controlField(key);
+
+                if (key.Key == ConsoleKey.Escape)
+                {
+                    for (int i = 0; i < field.NbrBraw; i++)
+                        for (int j = 0; j < 3 * field.NbrBaku; j++)
+                        {
+                            if (field.brawler[i].abilityCard[j].isActivated)
+                                field.brawler[i].abilityCard[j].deactivate();
+                        }
+                    for (int i = 0; i < field.NbrBraw; i++)
+                        for (int j = 0; j < field.NbrBaku; j++)
+                            if (field.gate[i, j].isBusy)
+                                field.gate[i, j].removePlayerGate();
+                    break;
+                }
+                if (key.Key == ConsoleKey.Q)
+                {
+                    // Начало игры (все ставят карту ворот)
+                    field.brawler[0].setGate(0, 0, 0);
+                    field.brawler[1].setGate(1, 0, 0);
+                }
+                if (key.Key == ConsoleKey.E)
+                {
+                    field.brawler[0].throwBakugan(0, 0, 0);
+                    field.brawler[0].throwBakugan(0, 0, 1);
+                    field.brawler[0].throwBakugan(0, 0, 2);
+                    field.brawler[1].throwBakugan(1, 0, 0);
+                    field.brawler[1].throwBakugan(1, 0, 1);
+                    field.brawler[1].throwBakugan(1, 0, 2);
+                }
+                    
+                
+                {
+                    // Пункт 2.1: Запустить бесконечный цикл по каждому игроку (Очередь queueMain)
+                    /*
+                    if (key.Key == ConsoleKey.Q)
+                        field.brawler[0].useAbility(0,0);
+                    if (key.Key == ConsoleKey.E)
+                        field.brawler[1].useAbility(0,0);
+                    */
+                    if (key.Key == ConsoleKey.R)
+                        field.brawler[0].useGate((int)field.currGateX, (int)field.currGateY);
+
+                    // Пункт 2.2: Если завершится локальный бой, вывести выходные данные
+                }
 
 
-            // Пункт 3.2: Когда завершится бой, вывести выходные данные
-            endBattle(field);
+                // Пункт 2.3: Выводим изображение
+                Console.Clear();
 
-            // Пункт 3.3: Выводим изображение
-            drawDemo(field);
-
-
+                field.drawField();
+                field.drawFieldInfo();
+                field.drawGateInfo();
+                
+                field.printAppLog();
+            }
+            
         }
-
-        // перед удалением изменить опцию "Allow unsafe code"
-        /*
-        static unsafe void a(Field field)
-        {
-            Field* a = &field;
-            Console.WriteLine("Address field: {0}", (int)a);
-        }
-        */
     }
 }

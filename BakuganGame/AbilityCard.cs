@@ -12,18 +12,20 @@ namespace BakuganGame
     {
         uint teamID; // нужно чтобы карта отличала врагов от друзей
         uint brawlerID;// Ссылка на пользователя карты способности
-        uint bakuganID;// Ссылка на бакугана которому принадлежит способность 
         uint abilityID;// Нужно понимать порядок карты в инвентаре
-        uint abilityType;
+        public uint abilityType { get; set; }
 
-        bool isActivated = false;
-        bool isUsed = false;
+        public bool isActivated{ get; set; }
+        public bool isUsed{ get; set; }
 
         Field field;//Логика карты опирается на ситуацию на поле боя
 
         public AbilityCard()
         {
-        }
+            abilityType = 1;
+            isActivated = false;
+            isUsed = false;
+}
 
 
         /// <summary>
@@ -35,13 +37,11 @@ namespace BakuganGame
         /// <param name="abilityID">ID способности в инвентаре (необходимо чтобы карта знала свой порядок в инвентаре)</param>
         /// <param name="abilityType">Тип карты способности (см функцию activate)</param>
         /// <returns>Возвращает true - если установить бакугана удалось</returns>
-        public bool define(uint teamID, uint brawlerID, uint bakuganID, uint abilityID, uint abilityType)
+        public bool define(uint teamID, uint brawlerID, uint abilityID)
         {
             this.teamID = teamID;
             this.brawlerID = brawlerID;
-            this.bakuganID = bakuganID;
             this.abilityID = abilityID;
-            this.abilityType = abilityType;
 
             return true;
         }
@@ -51,7 +51,7 @@ namespace BakuganGame
         /// Активировать работу карты способности (Здесь описана основная логика всех карт)
         /// </summary>
         /// <returns>Возвращает true - если успешно завершилось</returns>
-        public bool activate()
+        public bool activate(uint bakuganID)
         {
             // В будущем важно проверять возможно ли впринципе активировать функцию. Вдруг на 
             // поле особые условия и нам нельзя активировать карту
@@ -65,7 +65,7 @@ namespace BakuganGame
                     case 2://Прибавить 100 себе и удалить 100 всем врагам
                         field.brawler[brawlerID].bakugan[bakuganID].g += 100;
                         for (int i = 0; i < field.NbrBraw; i++)
-                            if (i != brawlerID && teamID != field.brawler[i].team)
+                            if (i != brawlerID && teamID != field.brawler[i].teamID)
                                 field.brawler[i].bakugan[bakuganID].g -= 100;
                         break;
                 }
@@ -91,7 +91,7 @@ namespace BakuganGame
 
 
         /// <summary>
-        /// Дективировать карту ворот. Происходит при завершении очереди queueBattle
+        /// Дективировать карту cпособности. Происходит при завершении очереди queueBattle
         /// </summary>
         /// <returns>Возвращает true - если успешно завершилось</returns>
         public void deactivate()
