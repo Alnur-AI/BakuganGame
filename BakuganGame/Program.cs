@@ -4,6 +4,15 @@ using System.Runtime.InteropServices;
 
 namespace BakuganGame
 {
+    public enum BakuState
+    {
+        DoesntExist  = -1,
+        InInventory,
+        OnGate,
+        InBattle,
+        KnockedOut,
+        Killed
+    }
     /*
      Цель: создать универсальный алгоритм ведения боя при любых условиях
      Входные данные (из конфига): 
@@ -43,17 +52,6 @@ namespace BakuganGame
                 }
                 
             }
-
-            /*
-            field.brawler[1].setTeam(2);
-            field.brawler[1].bakugan[0].setBakugan(false, false, true, false, false, false, 330);
-            field.brawler[1].abilityCard[0].define(2, 1, 0, 0);
-            field.brawler[1].abilityCard[1].define(2, 1, 1, 1);
-            field.brawler[1].abilityCard[2].define(2, 1, 2, 2);
-            field.brawler[1].gateCard[0].define(2, 1, 0, 0);
-            field.brawler[1].gateCard[1].define(2, 1, 0, 0);
-            field.brawler[1].gateCard[2].define(2, 1, 0, 0);
-            */
             field.setAppLog($"\n\nDefine is complete");
 
             // Завершаем формировать бойцов
@@ -322,6 +320,8 @@ namespace BakuganGame
             Field field = new Field();
             field.setReferenceField();
             defineBrawlers(field);
+            field.SortBrawlers();
+            
 
             ConsoleKeyInfo key;
             while (true)
@@ -332,52 +332,49 @@ namespace BakuganGame
                 }
                 key = Console.ReadKey(true);
 
-                field.controlField(key);
+                field.controlField(key);//WASD 
 
                 if (key.Key == ConsoleKey.Escape)
                 {
                     for (int i = 0; i < field.NbrBraw; i++)
                         for (int j = 0; j < 3 * field.NbrBaku; j++)
-                        {
                             if (field.brawler[i].abilityCard[j].isActivated)
                                 field.brawler[i].abilityCard[j].deactivate();
-                        }
+                        
                     for (int i = 0; i < field.NbrBraw; i++)
                         for (int j = 0; j < field.NbrBaku; j++)
                             if (field.gate[i, j].isBusy)
                                 field.gate[i, j].removePlayerGate();
                     break;
                 }
-                if (key.Key == ConsoleKey.Q)
-                {
-                    // Начало игры (все ставят карту ворот)
-                    field.brawler[0].setGate(0, 0, 0);
-                    field.brawler[1].setGate(1, 0, 0);
-                }
                 if (key.Key == ConsoleKey.E)
                 {
-                    field.brawler[0].throwBakugan(0, 0, 0);
-                    field.brawler[0].throwBakugan(0, 0, 1);
-                    field.brawler[0].throwBakugan(0, 0, 2);
-                    field.brawler[1].throwBakugan(1, 0, 0);
-                    field.brawler[1].throwBakugan(1, 0, 1);
-                    field.brawler[1].throwBakugan(1, 0, 2);
+                    for (int i = 0; i < field.NbrBraw; i++)
+                        for (int j = 0; j < field.NbrBaku; j++)
+                        {
+                            field.brawler[i].setGate(i, j, (uint)j);
+                            field.brawler[i].ForceThrowBakugan(i, j, j);
+                        }
                 }
-                    
-                
-                {
-                    // Пункт 2.1: Запустить бесконечный цикл по каждому игроку (Очередь queueMain)
-                    /*
-                    if (key.Key == ConsoleKey.Q)
-                        field.brawler[0].useAbility(0,0);
-                    if (key.Key == ConsoleKey.E)
-                        field.brawler[1].useAbility(0,0);
-                    */
-                    if (key.Key == ConsoleKey.R)
-                        field.brawler[0].useGate((int)field.currGateX, (int)field.currGateY);
 
-                    // Пункт 2.2: Если завершится локальный бой, вывести выходные данные
-                }
+
+                if (key.Key == ConsoleKey.R)
+                    field.nextPlayer();
+
+
+
+                
+                // Пункт 2.1: Запустить бесконечный цикл по каждому игроку (Очередь queueMain)
+                /*
+                if (key.Key == ConsoleKey.Q)
+                    field.brawler[0].useAbility(0,0);
+                */
+
+                    
+                //field.brawler[0].useGate((int)field.currGateX, (int)field.currGateY);
+
+                // Пункт 2.2: Если завершится локальный бой, вывести выходные данные
+                
 
 
                 // Пункт 2.3: Выводим изображение

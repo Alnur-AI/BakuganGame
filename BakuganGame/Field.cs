@@ -8,6 +8,8 @@ using System.Runtime.InteropServices;
 using System.Xml;
 using static System.Reflection.Metadata.BlobBuilder;
 using System.Globalization;
+using static System.Net.Mime.MediaTypeNames;
+using System.ComponentModel.Design;
 
 namespace BakuganGame
 {
@@ -35,10 +37,21 @@ namespace BakuganGame
         string appLog;// логирование процессов и ошибок всего приложения (Console Information)
         string battleLog;// логирование процессов битвы во время выполнения приложения (Console Information)
 
+        public uint currBrawler{ get; private set; }
+        int currBrawlerIndex = 0;
+        public List<Tuple<uint, uint>> queueGame { get; private set; } //Список игроков и их принадлежность к команде
+
+        
+
+        public List<uint> battleLinkHead { get; private set; }// Список бойцов - инициаторов 
+        public List<List<uint>> battleLink { get; private set; }// Список различных активных битв. Заметим что элемент battleLinkHead соответствует списку из battleLink
+
         public Field()
         {
             currGateX = 0;
             currGateY = 0;
+
+            
 
             setAppLog($"Connecting battle.xml");
             bool xmlFileFound = false;
@@ -317,6 +330,163 @@ namespace BakuganGame
             return true;
         }
 
+        public void printBakuName(int brawlerID, int bakuganID, int x, int y, string str)
+        {
+            ConsoleColor old = Console.ForegroundColor;
+            Console.SetCursorPosition(x, y);
+
+            int len = str.Length;
+            int[] attrCount = new int[6];
+            attrCount[0] = 0;
+            attrCount[1] = 0;
+            attrCount[2] = 0;
+            attrCount[3] = 0;
+            attrCount[4] = 0;
+            attrCount[5] = 0;
+
+            attrCount[0] += Convert.ToInt32(brawler[brawlerID].bakugan[bakuganID].isAquos);
+            attrCount[1] += Convert.ToInt32(brawler[brawlerID].bakugan[bakuganID].isDarkus);
+            attrCount[2] += Convert.ToInt32(brawler[brawlerID].bakugan[bakuganID].isHaos);
+            attrCount[3] += Convert.ToInt32(brawler[brawlerID].bakugan[bakuganID].isPyrus);
+            attrCount[4] += Convert.ToInt32(brawler[brawlerID].bakugan[bakuganID].isSubterra);
+            attrCount[5] += Convert.ToInt32(brawler[brawlerID].bakugan[bakuganID].isVentus);
+
+            // Calculate the length of each part based on the percentages
+            double tempp;
+            int[] partLengths = new int[6];
+            int numParts = Math.Min(6, attrCount.Length);
+            for (int i = 0; i < numParts; i++)
+            {
+                tempp = Convert.ToDouble(attrCount[i]) / Convert.ToDouble(attrCount.Sum());
+                partLengths[i] = (int)Math.Round(tempp * len);
+            }
+
+            // Add any remaining characters to the last part
+            int remainingChars = len - partLengths.Sum();
+            partLengths[numParts - 1] += remainingChars;
+
+            // Split the string into 6 parts
+            int startPosition = 0;
+            string part;
+            for (int i = 0; i < numParts; i++)
+            {
+                switch (i)
+                {
+                    case 0:
+                        Console.ForegroundColor = ConsoleColor.DarkCyan;
+                        break;
+                    case 1:
+                        Console.ForegroundColor = ConsoleColor.Magenta;
+                        break;
+                    case 2:
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        break;
+                    case 3:
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        break;
+                    case 4:
+                        Console.ForegroundColor = ConsoleColor.DarkYellow;
+                        break;
+                    case 5:
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        break;
+                }
+                if (startPosition + partLengths[i] >= len)
+                {
+                    part = str.Substring(startPosition);
+                    Console.Write(part);
+                    break;
+                }
+                else
+                {
+                    part = str.Substring(startPosition, partLengths[i]);
+                }
+                Console.Write(part);
+                startPosition += partLengths[i];
+            }
+            Console.ForegroundColor = old;
+        }
+        public void printBrawName(int brawlerID,int x, int y, string str)
+        {
+            ConsoleColor old = Console.ForegroundColor;
+            Console.SetCursorPosition(x, y);
+
+            int len = str.Length;
+            int[] attrCount = new int[6];
+            attrCount[0] = 0;
+            attrCount[1] = 0;
+            attrCount[2] = 0;
+            attrCount[3] = 0;
+            attrCount[4] = 0;
+            attrCount[5] = 0;
+
+            for (int i = 0; i < NbrBaku; i++)
+            {
+                attrCount[0] += Convert.ToInt32(brawler[brawlerID].bakugan[i].isAquos);
+                attrCount[1] += Convert.ToInt32(brawler[brawlerID].bakugan[i].isDarkus);
+                attrCount[2] += Convert.ToInt32(brawler[brawlerID].bakugan[i].isHaos);
+                attrCount[3] += Convert.ToInt32(brawler[brawlerID].bakugan[i].isPyrus);
+                attrCount[4] += Convert.ToInt32(brawler[brawlerID].bakugan[i].isSubterra);
+                attrCount[5] += Convert.ToInt32(brawler[brawlerID].bakugan[i].isVentus);
+            }
+
+
+            // Calculate the length of each part based on the percentages
+            double tempp;
+            int[] partLengths = new int[6];
+            int numParts = Math.Min(6, attrCount.Length);
+            for (int i = 0; i < numParts; i++)
+            {
+                tempp = Convert.ToDouble(attrCount[i]) / Convert.ToDouble(attrCount.Sum());
+                partLengths[i] = (int)Math.Round(tempp * len) ; 
+            }
+
+            // Add any remaining characters to the last part
+            int remainingChars = len - partLengths.Sum();
+            partLengths[numParts-1] += remainingChars;
+
+            // Split the string into 6 parts
+            int startPosition = 0;
+            string part;
+            for (int i = 0; i < numParts; i++)
+            {
+                switch (i)
+                {
+                    case 0:
+                        Console.ForegroundColor = ConsoleColor.DarkCyan;
+                        break;
+                    case 1:
+                        Console.ForegroundColor = ConsoleColor.Magenta;
+                        break;
+                    case 2:
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        break;
+                    case 3:
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        break;
+                    case 4:
+                        Console.ForegroundColor = ConsoleColor.DarkYellow;
+                        break;
+                    case 5:
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        break;
+                }
+                if(startPosition + partLengths[i] >= len)
+                {
+                    part = str.Substring(startPosition);
+                    Console.Write(part);
+                    break;
+                }
+                else
+                {
+                    part = str.Substring(startPosition, partLengths[i]);
+                }
+                Console.Write(part);
+                startPosition += partLengths[i];
+            }
+            Console.ForegroundColor = old;
+        }
+
         public void printText(ConsoleColor clr,int x,int y, string str)
         {
             ConsoleColor old = Console.ForegroundColor;
@@ -340,6 +510,7 @@ namespace BakuganGame
             Console.ForegroundColor = oldTex;
             Console.BackgroundColor = oldBgr;
         }
+        
         public bool drawField()
         {
             // Field
@@ -358,7 +529,6 @@ namespace BakuganGame
             
             return true;
         }
-
         public bool drawFieldInfo()
         {
             //Field Information
@@ -375,12 +545,19 @@ namespace BakuganGame
                 {
                     if(j == brawler[i].teamID)
                     {
+                        if (i == currBrawler)
+                            Console.BackgroundColor = ConsoleColor.DarkGray;
                         bakuLeft = new string('*', (int)(NbrBaku - brawler[i].loseBakugan));
-                        printText(ConsoleColor.White, 0, 12 + tempTeamCnt, "" + i);
+                        printBrawName(i, 0, 12 + tempTeamCnt, brawler[i].name + "");
+                        if (i == currBrawler)
+                            Console.BackgroundColor = ConsoleColor.Black;
+
+
                         printText(ConsoleColor.Yellow, 12, 12 + tempTeamCnt, bakuLeft);
                         printText(ConsoleColor.White, 25, 12 + tempTeamCnt, "" + (NbrBaku - brawler[i].usedAbilityCard));
                         printText(ConsoleColor.White, 35, 12 + tempTeamCnt, "" + (NbrBaku - brawler[i].usedGateCard));
                         tempTeamCnt++;
+                        
                     }
                     //12 + (j)* ((int)NbrBraw+1)
                     //12 + (j) * ((int)NbrBraw+1) + i + 1
@@ -389,7 +566,6 @@ namespace BakuganGame
 
             return true;
         }
-
         public bool drawGateInfo()
         {
             //Gate Info
@@ -407,8 +583,11 @@ namespace BakuganGame
                 {
                     if (j == gate[currGateX, currGateY].bakugan[i].team)
                     {
-                        //ДОРАБОТАТЬ НАЗВАНИЯ
-                        printText(ConsoleColor.White, 40, 12 + tempTeamCnt, "" + gate[currGateX, currGateY].bakugan[i].owner + ":" + "bakugan");
+                        uint bakuOwner = gate[currGateX, currGateY].bakugan[i].owner;
+                        uint bakuID = gate[currGateX, currGateY].bakugan[i].bakuganID;
+                        string brawName = brawler[bakuOwner].name;
+                        printBrawName((int)bakuOwner, 40, 12 + tempTeamCnt, brawName + ":" );
+                        printBakuName((int)bakuOwner,(int)bakuID, 42 + brawName.Length, 12 + tempTeamCnt, gate[currGateX, currGateY].bakugan[i].name);
                         printText(ConsoleColor.White, 72, 12 + tempTeamCnt, "" + gate[currGateX, currGateY].bakugan[i].g);
                         gTotal += gate[currGateX, currGateY].bakugan[i].g;
                         tempTeamCnt++;
@@ -444,6 +623,60 @@ namespace BakuganGame
                 }
 
             return true;
+        }
+
+
+        public void nextPlayer()
+        {
+            currBrawlerIndex++;
+            if(currBrawlerIndex >= NbrBraw)
+                currBrawlerIndex = 0;
+
+            currBrawler = queueGame[currBrawlerIndex].Item1;
+        }
+
+        public void SortBrawlers()
+        {
+            queueGame = new List<Tuple<uint, uint>>();
+
+            List<Tuple<uint, uint>> tempLst = brawler.Select(x => Tuple.Create(x.brawlerID, x.teamID)).ToList();
+            uint minTeam = tempLst.Min(x => x.Item2);
+            uint maxTeam = tempLst.Max(x => x.Item2);
+
+            uint currPos = 0;
+            uint currTeam = minTeam ;
+            while (tempLst.Count > 0)
+            {
+                
+                int i = 0;
+                while (i < tempLst.Count)
+                {
+                    if (tempLst[i].Item2 == currTeam)
+                    {
+                        queueGame.Add(new Tuple<uint, uint>(tempLst[i].Item1, tempLst[i].Item2));
+                        tempLst.RemoveAt(i);
+                        currPos++;
+                        break;
+                    }
+                    else
+                    {
+                        i++;
+                    }
+
+                }
+                currTeam++;
+                if (currTeam > maxTeam)
+                {
+                    currTeam = minTeam;
+                }
+            }
+            tempLst = queueGame.GetRange(0, queueGame.Count);
+            for (int i = 0; i < NbrBraw; i++)
+            {
+                brawler[i].queueID = tempLst[i].Item1;
+                //Console.WriteLine(brawler[i].queueID);
+            }
+            //queueGame.ForEach(Console.WriteLine);
         }
     }
 }

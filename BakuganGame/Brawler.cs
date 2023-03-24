@@ -58,26 +58,43 @@ namespace BakuganGame
         }
         
         /// <summary>
-        /// Боец инициирует бросок бакугана bakuganID на ворота (x,y)
+        /// Боец насильно инициирует бросок бакугана bakuganID на ворота (x,y)
         /// </summary>
         /// <param name="x">Координата ворот по x.</param>
         /// <param name="y">Координата ворот по y.</param>
         /// <param name="bakuganID">ID бакугана из арсенала, которого хотим отправить.</param>
         /// <returns>Возвращает true - если установить бакугана удалось</returns>
-        public bool throwBakugan(int x, int y, int bakuganID)
+        public bool ForceThrowBakugan(int x, int y, int bakuganID)
         {
-            if (0 <= x && x < field.NbrBraw && 
-                0 <= y && y < field.NbrBaku &&
-                field.gate[x, y].isBusy &&
-                bakugan[bakuganID].state == 0)
+            uint gateBakuID = field.gate[x, y].bakuganCount;
+            if (0 <= x && x < field.NbrBraw && 0 <= y && y < field.NbrBaku &&
+                field.gate[x, y].isBusy     && bakugan[bakuganID].state == 0)
             {
-                uint gateBakuID = field.gate[x, y].bakuganCount;
+                bool isYourTeam = false;// Есть ли бакуганы из твоей команды
+                int enemyCount = 0;// Количество вражеских бакуганов
+                bool bakuInBattleLink = false;// Есть ли бакуган в списке battleLink
+                for(int i = 0; i < gateBakuID; i++)
+                {
+                    if(field.gate[x, y].bakugan[i].team != bakugan[bakuganID].team)
+                        enemyCount++;
+                    isYourTeam = isYourTeam || field.gate[x, y].bakugan[i].team == bakugan[bakuganID].team;
+                }
+                // Если на поле боя хотя бы один враг, то вступаем в бой.
+                // Если поле из союзников - вступать на ворота запрещено. (исключение - особые способности. Потом сделаю)
+                // Создаем новый или уже существующий список боев
+                // Новый создается если вражеские бакуганы на вороте отсуствуют в списках battleLink
+                // В существующий вступаем если бакуганы на вороте есть хотя бы в одном из списков battleLink
+                // При добавлении элемента сохраняется порядок queueGame.
+                // Первый в списке будет инициатор боя, затем выбираем бакуганов
+                // по списку queueMain. Важно этот порядок сохранять
+
+
                 if (gateBakuID < field.NbrBraw * field.NbrBaku)
                 {
                     field.gate[x, y].bakugan[gateBakuID] = bakugan[bakuganID];
 
                     bakugan[bakuganID].bakuganInGateID = (int)gateBakuID;
-                    bakugan[bakuganID].state = 1;
+                    bakugan[bakuganID].state = BakuState.OnGate;
 
                     field.gate[x, y].bakuganCount++;
 
@@ -262,7 +279,7 @@ namespace BakuganGame
             this.teamID = teamID;
             for (int i = 0; i < field.NbrBaku; i++)
             {
-                bakugan[i].define(brawlerID, teamID);
+                bakugan[i].define(teamID, brawlerID, (uint)i );
             }
             return true;
         }
@@ -335,13 +352,5 @@ namespace BakuganGame
             }
         }
 
-        /// <summary>
-        /// Пропустить/завершить текущий ход
-        /// </summary>
-        /// <returns>Возвращает true - если удалось правильно заполнить поле</returns>
-        public bool skipTurn()
-        {
-            return true;
-        }
     }
 }

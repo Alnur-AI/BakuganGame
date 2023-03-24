@@ -12,12 +12,12 @@ namespace BakuganGame
     {
         //ID in fiel
         public string name { get; set; }
-        uint bakuganID;
+        public uint bakuganID { get; set; }
         public int bakuganInGateID { get; set; }//ID на вороте (-1 значит что бакуган в инвентаре)
         int x;
         int y;
 
-        public int state { get; set; }
+        public BakuState state { get; set; }
                       //-1 - does not exist
                       //0 - in pocket,
                       //1 - in card,
@@ -42,9 +42,9 @@ namespace BakuganGame
         public bool isSubterra { get;  set; }
         public bool isHaos { get;  set; }
 
-        public Bakugan()
+        public Bakugan()    
         {
-            state = -1;
+            state = BakuState.DoesntExist;
             bakuganInGateID = -1;
             gGlobal = gGame = this.g = 0;
         }
@@ -56,9 +56,10 @@ namespace BakuganGame
         /// <param name="team">ID команды</param>
         /// <param name="brawlerID">ID бойца</param>
         /// <returns>Возвращает true - если установить бакугана удалось</returns>
-        public bool define(uint brawlerID, uint teamID)
+        public bool define(uint teamID,uint brawlerID,uint bakuganID)
         {
             owner = brawlerID;
+            this.bakuganID = bakuganID;
             team = teamID;
             return true;
         }

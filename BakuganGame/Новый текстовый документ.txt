@@ -1,0 +1,106 @@
+/*
+                // Для создания очереди создадим список, содержащий id и team
+                // Найдем максимальный и минимальный team
+                // В течении бесконечного цикла смотрим на каждый элемент списка
+                // Если элемент списка совпадает с текущевыбранным team, то записываем в наш массив, а из списка убираем
+                // Если во всем списке не найдем team, то увеличиваем его на единицу, и так пока не дойдем до максимума
+                // В конце список должен быть пустой и team должен быть по размеру как максимальный 
+
+                
+                 Есть массив обьектов brawler с параметрами id и teams. id равен порядку обьекта в массиве. 
+                Необходимо отсортировать элементы так, чтобы параметр teams чередовался по возрастанию 
+                (например 1,2,3...). Написать на языке c#. Напиши только функцию SortBrawlers. 
+
+                1) Создай список tempLst, в элементе которого будет содержаться id и teams из массива brawler. 
+                2) Создай переменную minTeam - минимальное значение поля teams
+                3) Создай переменную maxTeam - максимальное значение поля teams
+                4) Создай новый массив объектов queueGame
+                5) создай переменную currPos - текущая позиция нового элемента массива
+                6) создай переменную currTeam - Текущая команда, которую необходимо добавить в массив
+                7) Запусти цикл while. Цикл должен остановиться если список tempLst будет пустым.
+                8) Если внутри списка обнаружится элемент, у которого team == currTeam, то увеличивай currTeam на единицу, добавляй элемент списка в массив, и удаляй этот элемент списка.
+                9) ВАЖНО! Если currTeam > maxTeam, то currTeam == minTeam
+                 
+                
+*/
+
+
+
+using System;
+using System.Linq;
+using System.Collections.Generic;
+
+public class Brawler
+{
+    public int id { get; set; }
+    public int teams { get; set; }
+}
+
+
+
+public class Program {
+
+ public static void SortBrawlers(Brawler[] brawlers)
+                {
+                List<Tuple<int, int>> tempLst = brawlers.Select(x => Tuple.Create(x.id, x.teams)).ToList();
+                    int minTeam = tempLst.Min(x => x.Item2);
+                    int maxTeam = tempLst.Max(x => x.Item2);
+                    Brawler[] queueGame = new Brawler[brawlers.Length];
+                    int currPos = 0;
+                    int currTeam = minTeam-1;
+                    while (tempLst.Count > 0)
+                    {
+    	
+    
+                        int i = 0;
+                        while (i < tempLst.Count)
+                        {
+                            if (tempLst[i].Item2 == currTeam)
+                            {
+                                queueGame[currPos++] = new Brawler { id = tempLst[i].Item1, teams = tempLst[i].Item2 };
+                                tempLst.RemoveAt(i);
+                
+                                break;
+                            }
+                            else
+                            {
+                                i++;
+                            }
+            
+                        }
+                        currTeam++;
+                                if (currTeam > maxTeam)
+                                {
+                	                currTeam = minTeam;
+                                }
+                    }
+                    //queueGame.CopyTo(brawlers, 0);
+    
+                    foreach (Brawler b in queueGame)
+                        {
+                            Console.WriteLine($"id: {b.id}, teams: {b.teams}\n");
+                        }
+                }
+
+    static void Main(string[] args) {
+        int n = 6; // number of elements in the array
+        int NbrTeam = 3; // maximum value of team parameter
+        
+        Brawler[] brawlers = new Brawler[]
+        {
+            new Brawler { id = 0, teams = 1 },
+            new Brawler { id = 1, teams = 3 },
+            new Brawler { id = 2, teams = 2 },
+            new Brawler { id = 3, teams = 1 },
+            new Brawler { id = 4, teams = 2 },
+            new Brawler { id = 5, teams = 3 }
+        };
+
+        SortBrawlers(brawlers);
+
+        foreach (Brawler b in brawlers)
+        {
+            Console.WriteLine($"id: {b.id}, teams: {b.teams}");
+        }
+    }
+}

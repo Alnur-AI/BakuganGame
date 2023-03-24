@@ -1,0 +1,71 @@
+using System;
+using System.Collections.Generic;
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        // Initialize the array of objects with n elements and 2 teams
+        int n = 10;
+        int teams = 2;
+        var objects = new (int id, int team)[n];
+        for (int i = 0; i < n; i++)
+        {
+            objects[i] = (i + 1, i % teams);
+        }
+
+        // Separate the array into team parts using a 2D array
+        var teamArrays = new int[teams][];
+        int[] teamSizes = new int[teams];
+        for (int i = 0; i < n; i++)
+        {
+            int team = objects[i].team;
+            teamSizes[team]++;
+        }
+        for (int i = 0; i < teams; i++)
+        {
+            teamArrays[i] = new int[teamSizes[i]];
+            teamSizes[i] = 0;
+        }
+        for (int i = 0; i < n; i++)
+        {
+            int team = objects[i].team;
+            int index = teamSizes[team];
+            teamArrays[team][index] = objects[i].id;
+            teamSizes[team]++;
+        }
+
+        // Shuffle the team parts randomly using the Fisher-Yates shuffle algorithm
+        var rand = new Random();
+        for (int i = 0; i < teams; i++)
+        {
+            int n_i = teamSizes[i];
+            for (int j = n_i - 1; j > 0; j--)
+            {
+                int k = rand.Next(j + 1);
+                int temp = teamArrays[i][j];
+                teamArrays[i][j] = teamArrays[i][k];
+                teamArrays[i][k] = temp;
+            }
+        }
+
+        // Combine the team parts into the mixed ID queue
+        var mixedQueue = new Queue<int>();
+        int[] indices = new int[teams];
+        int currentTeam = 0;
+        for (int i = 0; i < n; i++)
+        {
+            mixedQueue.Enqueue(teamArrays[currentTeam][indices[currentTeam]]);
+            indices[currentTeam]++;
+            currentTeam = (currentTeam + 1) % teams;
+        }
+
+        // Print the resulting queue with mixed IDs and alternating teams
+        Console.WriteLine("Mixed ID Queue:");
+        foreach (int id in mixedQueue)
+        {
+            int team = objects[id - 1].team;
+            Console.WriteLine("ID: {0}, Team: {1}", id, team);
+        }
+    }
+}
