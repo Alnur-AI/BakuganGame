@@ -67,7 +67,7 @@ namespace BakuganGame
         /// <returns>Возвращает true - если установить бакугана удалось</returns>
         public bool ForceThrowBakugan(int x, int y, int bakuganID)
         {
-            uint gateBakuID = field.gate[x, y].bakuganCount;
+            int gateBakuID = field.gate[x, y].bakugan.Count;
             if 
             (
                 0 <= x && x < field.NbrBraw && 
@@ -156,14 +156,15 @@ namespace BakuganGame
 
 
                     // Добавляем нашего бакугана на поле
-                    field.gate[x, y].bakugan[gateBakuID] = bakugan[bakuganID];
+                    field.gate[x, y].bakugan.Add(bakugan[bakuganID]);
+                    //field.gate[x, y].bakugan[(int)gateBakuID] = bakugan[bakuganID];
 
                     bakugan[bakuganID].x = x;
                     bakugan[bakuganID].y = y;
                     bakugan[bakuganID].bakuganInGateID = (int)gateBakuID;
                     bakugan[bakuganID].state = BakuState.OnGate;
 
-                    field.gate[x, y].bakuganCount++;
+                    //field.gate[x, y].bakuganCount++;
 
                     field.setAppLog($"Brawler {brawlerID} message: bakugan {bakuganID} placed in gate ({x}, {y})");
 

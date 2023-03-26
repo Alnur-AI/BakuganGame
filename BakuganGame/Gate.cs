@@ -19,12 +19,13 @@ namespace BakuganGame
         public int y { get; private set; }
 
         public bool isBusy = false;// стоит чья-то карта
-        public uint bakuganCount { get; set; }
+        //public uint bakuganCount { get; set; }
 
         public uint gateOwner { get; private set; }// 0 - ничья, иначе айди бойца
 
         Field field; // Воротам важно знать что происходит вокруг
-        public Bakugan[] bakugan; //ссылка на бакуганов установленных на карте
+        //public Bakugan[] bakugan; //ссылка на бакуганов установленных на карте
+        public List<Bakugan> bakugan { get; set; }
         public GateCard gateCard; //установленная карта ворот
 
         public Gate(uint NbrBaku, uint NbrTeam, uint NbrBraw, int x, int y, Field field) 
@@ -32,10 +33,11 @@ namespace BakuganGame
             this.x = x;
             this.y = y;
 
-            bakuganCount = 0;
+            //bakuganCount = 0;
             this.field = field;
 
-            bakugan = new Bakugan[NbrBaku * NbrBraw];
+            //bakugan = new Bakugan[NbrBaku * NbrBraw];
+            bakugan = new List<Bakugan>();
             gateCard = new GateCard(field);
 
 
@@ -72,7 +74,8 @@ namespace BakuganGame
                 field.setAppLog($"Gate ({x},{y}) message: gate erased, removed card from gate ");
                 gateCard.removeFromField();//нужна причина почему мы удаляем: конец битвы, конец игры
                 isBusy = false;
-                bakuganCount = 0;
+                bakugan = new List<Bakugan>();
+                //bakuganCount = 0;
 
                 gateCard = new GateCard(field);
 
@@ -95,7 +98,7 @@ namespace BakuganGame
             Console.WriteLine($"x position: {x}");
             Console.WriteLine($"y position: {y}");
             Console.WriteLine($"is busy: {isBusy}"); 
-            Console.WriteLine($"count of bakugan in gate: {bakuganCount}");
+            //Console.WriteLine($"count of bakugan in gate: {bakuganCount}");
         }
 
     }

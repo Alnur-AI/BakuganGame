@@ -585,7 +585,7 @@ namespace BakuganGame
                 printText(ConsoleColor.Black,ConsoleColor.Gray, 40, 12 + tempTeamCnt, "Team " + (j) + "                        G power  ");
                 tempTeamCnt++;
 
-                for (int i = 0; i < gate[currGateX, currGateY].bakuganCount; i++)
+                for (int i = 0; i < gate[currGateX, currGateY].bakugan.Count; i++)
                 {
                     if (j == gate[currGateX, currGateY].bakugan[i].team)
                     {

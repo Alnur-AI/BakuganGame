@@ -94,18 +94,11 @@ namespace BakuganGame
                     {
                         // Если карта опустела окончательно сделать правильную очистку карты ворот
                         // Нужна модийикация списка
-                        /*
-                        if(field.gate[bakugan.x, bakugan.y].bakuganCount == 1)
-                        {
-                            field.gate[bakugan.x, bakugan.y].bakugan[bakugan.bakuganInGateID] = new Bakugan();
-                            field.gate[bakugan.x, bakugan.y].bakuganCount--;
-                        }
-                        else
-                        {
-                            field.gate[bakugan.x, bakugan.y].bakugan[bakugan.bakuganInGateID] = new Bakugan();
-                            field.gate[bakugan.x, bakugan.y].bakuganCount--;
-                        }
-                        */
+                        
+
+                        field.gate[bakugan.x, bakugan.y].bakugan.RemoveAll(x => x == bakugan);
+                        //field.gate[bakugan.x, bakugan.y].bakuganCount--;
+
 
                         if (winnerTeams.Contains(bakugan.team))
                             field.brawler[bakugan.owner].bakugan[bakugan.bakuganID].state = BakuState.InInventory;
