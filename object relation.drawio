@@ -1,6 +1,6 @@
-<mxfile host="app.diagrams.net" modified="2023-03-24T18:12:06.910Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.1661.51" etag="O3RsIPhqN-7MmfeKyw8G" version="21.1.0" type="device">
+<mxfile host="app.diagrams.net" modified="2023-03-25T15:39:08.924Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.1661.51" etag="3Xr0WR3cE5gNLpsSVegA" version="21.1.1" type="device">
   <diagram name="Страница 1" id="a3P9u6cnhdrN-g0bfrfS">
-    <mxGraphModel dx="828" dy="1605" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="1324" dy="1944" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -167,99 +167,283 @@
         <mxCell id="gnqK-Q3UBp_WLND6Pj9h-39" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="gnqK-Q3UBp_WLND6Pj9h-29" target="gnqK-Q3UBp_WLND6Pj9h-38" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="O90Jl7bZLR4odMNvlkuS-23" value="Создание новых BattleLink и присоединение к существующим" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="O90Jl7bZLR4odMNvlkuS-23" value="Бизнес-процесс: Создание новых BattleLink и присоединение к существующим" style="swimlane;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="330" y="-1000" width="1160" height="800" as="geometry" />
         </mxCell>
-        <mxCell id="O90Jl7bZLR4odMNvlkuS-1" value="Есть на карте вражеские бакуганы" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="O90Jl7bZLR4odMNvlkuS-23">
+        <mxCell id="O90Jl7bZLR4odMNvlkuS-1" value="Есть на карте вражеские бакуганы" style="rounded=0;whiteSpace=wrap;html=1;" parent="O90Jl7bZLR4odMNvlkuS-23" vertex="1">
           <mxGeometry x="381.5" y="260" width="120" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="O90Jl7bZLR4odMNvlkuS-2" value="&lt;b&gt;2) throwBakugan&lt;br&gt;(int x, int y, int bakuganID)&lt;/b&gt;&lt;br&gt;Боец пытается отправить бакугана(1 раз)&lt;br&gt;&lt;br&gt;&lt;b&gt;1)&lt;/b&gt; Нельзя отправить бакугана на карту союзника (пока не будет активирована соответстующая способность)&lt;br&gt;&lt;b&gt;2) &lt;/b&gt;Если бакуган попадает на карту с врагом - инициируется новый или присоединяется к существующему battleLink&lt;br&gt;&lt;b&gt;3)&lt;/b&gt; BattleLink не зависит от карты ворот.&lt;br&gt;&lt;b&gt;4)&lt;/b&gt; BattleLink разрывается как только Queue дойдет до инициатора BattleLink" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="O90Jl7bZLR4odMNvlkuS-23">
-          <mxGeometry x="107.5" y="160" width="181" height="280" as="geometry" />
+        <mxCell id="O90Jl7bZLR4odMNvlkuS-2" value="&lt;b&gt;2) throwBakugan&lt;br&gt;(int x, int y, int bakuganID)&lt;/b&gt;&lt;br&gt;Боец пытается отправить бакугана(1 раз)&lt;br&gt;&lt;br&gt;&lt;b&gt;1)&lt;/b&gt; Нельзя отправить бакугана на карту состоящую из союзников (пока не будет активирована соответстующая способность)&lt;br&gt;&lt;b&gt;2) &lt;/b&gt;Если бакуган попадает на карту с врагом - инициируется новый или присоединяется к существующему battleLink&lt;br&gt;&lt;b&gt;3)&lt;/b&gt; BattleLink не зависит от карты ворот.&lt;br&gt;&lt;b&gt;4)&lt;/b&gt; BattleLink разрывается как только Queue дойдет до инициатора BattleLink" style="rounded=1;whiteSpace=wrap;html=1;" parent="O90Jl7bZLR4odMNvlkuS-23" vertex="1">
+          <mxGeometry x="140" y="160" width="181" height="280" as="geometry" />
         </mxCell>
-        <mxCell id="O90Jl7bZLR4odMNvlkuS-3" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="O90Jl7bZLR4odMNvlkuS-23" source="O90Jl7bZLR4odMNvlkuS-2" target="O90Jl7bZLR4odMNvlkuS-1">
+        <mxCell id="O90Jl7bZLR4odMNvlkuS-3" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="O90Jl7bZLR4odMNvlkuS-23" source="O90Jl7bZLR4odMNvlkuS-2" target="O90Jl7bZLR4odMNvlkuS-1" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="351.5" y="360" as="sourcePoint" />
             <mxPoint x="421.5" y="300" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="O90Jl7bZLR4odMNvlkuS-4" value="Присоединяемся ко всем боевым спискам где есть эти бакуганы на вороте" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="O90Jl7bZLR4odMNvlkuS-23">
+        <mxCell id="O90Jl7bZLR4odMNvlkuS-4" value="Присоединяемся ко всем боевым спискам где есть эти бакуганы на вороте" style="rounded=0;whiteSpace=wrap;html=1;" parent="O90Jl7bZLR4odMNvlkuS-23" vertex="1">
           <mxGeometry x="582.5" y="120" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="O90Jl7bZLR4odMNvlkuS-5" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="O90Jl7bZLR4odMNvlkuS-23" source="O90Jl7bZLR4odMNvlkuS-1" target="O90Jl7bZLR4odMNvlkuS-4">
+        <mxCell id="O90Jl7bZLR4odMNvlkuS-5" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=1;entryDx=0;entryDy=0;" parent="O90Jl7bZLR4odMNvlkuS-23" source="O90Jl7bZLR4odMNvlkuS-1" target="O90Jl7bZLR4odMNvlkuS-4" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="591.5" y="300" as="sourcePoint" />
             <mxPoint x="641.5" y="250" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="O90Jl7bZLR4odMNvlkuS-8" value="Да" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="O90Jl7bZLR4odMNvlkuS-5">
+        <mxCell id="O90Jl7bZLR4odMNvlkuS-8" value="Да" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="O90Jl7bZLR4odMNvlkuS-5" vertex="1" connectable="0">
           <mxGeometry x="-0.1304" relative="1" as="geometry">
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="O90Jl7bZLR4odMNvlkuS-6" value="Карта пустая?" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="O90Jl7bZLR4odMNvlkuS-23">
+        <mxCell id="O90Jl7bZLR4odMNvlkuS-6" value="Карта пустая?" style="rounded=0;whiteSpace=wrap;html=1;" parent="O90Jl7bZLR4odMNvlkuS-23" vertex="1">
           <mxGeometry x="582.5" y="420" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="O90Jl7bZLR4odMNvlkuS-7" value="Нет" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="O90Jl7bZLR4odMNvlkuS-23" source="O90Jl7bZLR4odMNvlkuS-1" target="O90Jl7bZLR4odMNvlkuS-6">
+        <mxCell id="O90Jl7bZLR4odMNvlkuS-7" value="Нет" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0;entryDx=0;entryDy=0;" parent="O90Jl7bZLR4odMNvlkuS-23" source="O90Jl7bZLR4odMNvlkuS-1" target="O90Jl7bZLR4odMNvlkuS-6" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="531.5" y="340" as="sourcePoint" />
             <mxPoint x="581.5" y="290" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="O90Jl7bZLR4odMNvlkuS-9" value="Размещаем бакугана и не создаем никаких battleLiink" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="O90Jl7bZLR4odMNvlkuS-23">
+        <mxCell id="O90Jl7bZLR4odMNvlkuS-9" value="Размещаем бакугана и не создаем никаких battleLiink" style="rounded=0;whiteSpace=wrap;html=1;" parent="O90Jl7bZLR4odMNvlkuS-23" vertex="1">
           <mxGeometry x="781.5" y="280" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="O90Jl7bZLR4odMNvlkuS-10" value="На карте находятся союзные бакуганы. В данный момент активирована карта призываюшая дополнительных бакуганов?" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="O90Jl7bZLR4odMNvlkuS-23">
+        <mxCell id="O90Jl7bZLR4odMNvlkuS-10" value="На карте находятся союзные бакуганы. В данный момент активирована карта призываюшая дополнительных бакуганов?" style="rounded=0;whiteSpace=wrap;html=1;" parent="O90Jl7bZLR4odMNvlkuS-23" vertex="1">
           <mxGeometry x="781.5" y="540" width="120" height="100" as="geometry" />
         </mxCell>
-        <mxCell id="O90Jl7bZLR4odMNvlkuS-11" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="O90Jl7bZLR4odMNvlkuS-23" source="O90Jl7bZLR4odMNvlkuS-6" target="O90Jl7bZLR4odMNvlkuS-9">
+        <mxCell id="O90Jl7bZLR4odMNvlkuS-11" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=1;entryDx=0;entryDy=0;" parent="O90Jl7bZLR4odMNvlkuS-23" source="O90Jl7bZLR4odMNvlkuS-6" target="O90Jl7bZLR4odMNvlkuS-9" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="711.5" y="440" as="sourcePoint" />
             <mxPoint x="761.5" y="390" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="O90Jl7bZLR4odMNvlkuS-13" value="Да" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="O90Jl7bZLR4odMNvlkuS-11">
+        <mxCell id="O90Jl7bZLR4odMNvlkuS-13" value="Да" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="O90Jl7bZLR4odMNvlkuS-11" vertex="1" connectable="0">
           <mxGeometry x="0.2648" y="3" relative="1" as="geometry">
             <mxPoint x="-9" y="13" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="O90Jl7bZLR4odMNvlkuS-12" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="O90Jl7bZLR4odMNvlkuS-23" source="O90Jl7bZLR4odMNvlkuS-6" target="O90Jl7bZLR4odMNvlkuS-10">
+        <mxCell id="O90Jl7bZLR4odMNvlkuS-12" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0;entryDx=0;entryDy=0;" parent="O90Jl7bZLR4odMNvlkuS-23" source="O90Jl7bZLR4odMNvlkuS-6" target="O90Jl7bZLR4odMNvlkuS-10" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="751.5" y="500" as="sourcePoint" />
             <mxPoint x="801.5" y="450" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="O90Jl7bZLR4odMNvlkuS-14" value="Нет" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="O90Jl7bZLR4odMNvlkuS-12">
+        <mxCell id="O90Jl7bZLR4odMNvlkuS-14" value="Нет" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="O90Jl7bZLR4odMNvlkuS-12" vertex="1" connectable="0">
           <mxGeometry x="-0.0601" y="-1" relative="1" as="geometry">
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="O90Jl7bZLR4odMNvlkuS-15" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="O90Jl7bZLR4odMNvlkuS-23">
+        <mxCell id="O90Jl7bZLR4odMNvlkuS-15" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=1;entryDx=0;entryDy=0;" parent="O90Jl7bZLR4odMNvlkuS-23" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="901.5" y="540" as="sourcePoint" />
             <mxPoint x="980.5" y="460" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="O90Jl7bZLR4odMNvlkuS-16" value="Да" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="O90Jl7bZLR4odMNvlkuS-15">
+        <mxCell id="O90Jl7bZLR4odMNvlkuS-16" value="Да" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="O90Jl7bZLR4odMNvlkuS-15" vertex="1" connectable="0">
           <mxGeometry x="0.2648" y="3" relative="1" as="geometry">
             <mxPoint x="-9" y="13" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="O90Jl7bZLR4odMNvlkuS-19" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="O90Jl7bZLR4odMNvlkuS-23">
+        <mxCell id="O90Jl7bZLR4odMNvlkuS-19" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0;entryDx=0;entryDy=0;" parent="O90Jl7bZLR4odMNvlkuS-23" edge="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="901.5" y="640" as="sourcePoint" />
             <mxPoint x="980.5" y="700" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="O90Jl7bZLR4odMNvlkuS-20" value="Нет" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="O90Jl7bZLR4odMNvlkuS-19">
+        <mxCell id="O90Jl7bZLR4odMNvlkuS-20" value="Нет" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="O90Jl7bZLR4odMNvlkuS-19" vertex="1" connectable="0">
           <mxGeometry x="-0.0601" y="-1" relative="1" as="geometry">
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="O90Jl7bZLR4odMNvlkuS-21" value="Присоединяемся ко всем боевым спискам где есть бакуганы на вороте" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="O90Jl7bZLR4odMNvlkuS-23">
+        <mxCell id="O90Jl7bZLR4odMNvlkuS-21" value="Присоединяемся ко всем боевым спискам где есть бакуганы на вороте" style="rounded=0;whiteSpace=wrap;html=1;" parent="O90Jl7bZLR4odMNvlkuS-23" vertex="1">
           <mxGeometry x="982.5" y="400" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="O90Jl7bZLR4odMNvlkuS-22" value="Выводим ошибку. Запрещено так делать" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="O90Jl7bZLR4odMNvlkuS-23">
+        <mxCell id="O90Jl7bZLR4odMNvlkuS-22" value="Выводим ошибку. Запрещено так делать" style="rounded=0;whiteSpace=wrap;html=1;" parent="O90Jl7bZLR4odMNvlkuS-23" vertex="1">
           <mxGeometry x="982.5" y="700" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-59" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.25;entryDx=0;entryDy=0;" edge="1" parent="O90Jl7bZLR4odMNvlkuS-23" source="OIszrJ19DE527HBTLEG0-55" target="O90Jl7bZLR4odMNvlkuS-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-55" value="Личный мотив бросить бакугана" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="O90Jl7bZLR4odMNvlkuS-23">
+          <mxGeometry x="20" y="200" width="80" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-58" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.75;entryDx=0;entryDy=0;" edge="1" parent="O90Jl7bZLR4odMNvlkuS-23" source="OIszrJ19DE527HBTLEG0-56" target="O90Jl7bZLR4odMNvlkuS-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-56" value="Активирована карта способности" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="O90Jl7bZLR4odMNvlkuS-23">
+          <mxGeometry x="20" y="340" width="80" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-54" value="1) Бакуган инициатор попадает на карту ворот с противником (Через карту способностей или бросок)" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="O90Jl7bZLR4odMNvlkuS-23">
+          <mxGeometry x="20" y="570" width="120" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-60" value="2) Делаем поиск вражеского бакугана в BattleLink" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="O90Jl7bZLR4odMNvlkuS-23">
+          <mxGeometry x="200" y="590" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-61" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="O90Jl7bZLR4odMNvlkuS-23" source="OIszrJ19DE527HBTLEG0-54" target="OIszrJ19DE527HBTLEG0-60">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-62" value="Добавляем инициатора в конец списка" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="O90Jl7bZLR4odMNvlkuS-23">
+          <mxGeometry x="400" y="480" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-63" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="O90Jl7bZLR4odMNvlkuS-23" source="OIszrJ19DE527HBTLEG0-60" target="OIszrJ19DE527HBTLEG0-62">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="340" y="630" as="sourcePoint" />
+            <mxPoint x="390" y="580" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-64" value="Бакуган был найден" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="OIszrJ19DE527HBTLEG0-63">
+          <mxGeometry x="-0.2662" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-67" value="Создаем новый список и первым ставим инициатора, затем бакуганы на которых мы напали" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="O90Jl7bZLR4odMNvlkuS-23">
+          <mxGeometry x="400" y="700" width="120" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-65" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="O90Jl7bZLR4odMNvlkuS-23" source="OIszrJ19DE527HBTLEG0-60" target="OIszrJ19DE527HBTLEG0-67">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="330" y="600" as="sourcePoint" />
+            <mxPoint x="350" y="700" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-66" value="Бакуган не был найден" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="OIszrJ19DE527HBTLEG0-65">
+          <mxGeometry x="-0.2662" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-27" value="BattleLink" style="swimlane;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="1670" y="-1110" width="1290" height="680" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-49" value="" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=none;" vertex="1" parent="OIszrJ19DE527HBTLEG0-27">
+          <mxGeometry x="921.25" y="60" width="310" height="310" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-1" value="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="OIszrJ19DE527HBTLEG0-27">
+          <mxGeometry x="1055" y="40" width="42.5" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-2" value="2" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="OIszrJ19DE527HBTLEG0-27">
+          <mxGeometry x="1167.5" y="80" width="42.5" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-3" value="3" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="OIszrJ19DE527HBTLEG0-27">
+          <mxGeometry x="1211.25" y="170" width="42.5" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-4" value="4" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="OIszrJ19DE527HBTLEG0-27">
+          <mxGeometry x="1193.75" y="270" width="42.5" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-44" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="OIszrJ19DE527HBTLEG0-27" source="OIszrJ19DE527HBTLEG0-10" target="OIszrJ19DE527HBTLEG0-13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-10" value="5" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="OIszrJ19DE527HBTLEG0-27">
+          <mxGeometry x="58.75" y="240" width="42.5" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-39" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="OIszrJ19DE527HBTLEG0-27" source="OIszrJ19DE527HBTLEG0-12" target="OIszrJ19DE527HBTLEG0-38">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-13" value="4" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="OIszrJ19DE527HBTLEG0-27">
+          <mxGeometry x="141.25" y="240" width="42.5" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-14" value="2" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="OIszrJ19DE527HBTLEG0-27">
+          <mxGeometry x="58.75" y="320" width="42.5" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="OIszrJ19DE527HBTLEG0-27" source="OIszrJ19DE527HBTLEG0-10" target="OIszrJ19DE527HBTLEG0-14">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-15" value="7" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="OIszrJ19DE527HBTLEG0-27">
+          <mxGeometry x="141.25" y="320" width="42.5" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="OIszrJ19DE527HBTLEG0-27" source="OIszrJ19DE527HBTLEG0-14" target="OIszrJ19DE527HBTLEG0-15">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-17" value="3" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="OIszrJ19DE527HBTLEG0-27">
+          <mxGeometry x="221.25" y="320" width="42.5" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="OIszrJ19DE527HBTLEG0-27" source="OIszrJ19DE527HBTLEG0-15" target="OIszrJ19DE527HBTLEG0-17">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-21" value="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="OIszrJ19DE527HBTLEG0-27">
+          <mxGeometry x="58.75" y="400" width="42.5" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-26" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="OIszrJ19DE527HBTLEG0-27" source="OIszrJ19DE527HBTLEG0-14" target="OIszrJ19DE527HBTLEG0-21">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-22" value="8" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="OIszrJ19DE527HBTLEG0-27">
+          <mxGeometry x="141.25" y="400" width="42.5" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-23" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="OIszrJ19DE527HBTLEG0-27" source="OIszrJ19DE527HBTLEG0-21" target="OIszrJ19DE527HBTLEG0-22">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-28" value="5" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="OIszrJ19DE527HBTLEG0-27">
+          <mxGeometry x="1120" y="340" width="42.5" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-29" value="6" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="OIszrJ19DE527HBTLEG0-27">
+          <mxGeometry x="993.75" y="340" width="42.5" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-30" value="7" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="OIszrJ19DE527HBTLEG0-27">
+          <mxGeometry x="917.5" y="270" width="42.5" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-34" value="8" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="OIszrJ19DE527HBTLEG0-27">
+          <mxGeometry x="900" y="170" width="42.5" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-36" value="9" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="OIszrJ19DE527HBTLEG0-27">
+          <mxGeometry x="951.25" y="80" width="42.5" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-41" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="OIszrJ19DE527HBTLEG0-27" source="OIszrJ19DE527HBTLEG0-38" target="OIszrJ19DE527HBTLEG0-40">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-38" value="4" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="OIszrJ19DE527HBTLEG0-27">
+          <mxGeometry x="301.25" y="240" width="42.5" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-40" value="6" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="OIszrJ19DE527HBTLEG0-27">
+          <mxGeometry x="388.75" y="240" width="42.5" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-43" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="OIszrJ19DE527HBTLEG0-27" source="OIszrJ19DE527HBTLEG0-13" target="OIszrJ19DE527HBTLEG0-12">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1863.75" y="-620" as="sourcePoint" />
+            <mxPoint x="1981.75" y="-620" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-12" value="6" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="OIszrJ19DE527HBTLEG0-27">
+          <mxGeometry x="221.25" y="240" width="42.5" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-45" value="Для того чтобы добавить новую битву идет поиск идет по конкретному бакугану в списках BattleLink. Для удобства иллюстрация показывает айди бойца. Однако в каждом элементе будет содержаться команда, айди бакугана и его бойца" style="text;html=1;strokeColor=default;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="OIszrJ19DE527HBTLEG0-27">
+          <mxGeometry x="515" y="40" width="260" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-47" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="OIszrJ19DE527HBTLEG0-27" source="OIszrJ19DE527HBTLEG0-46" target="OIszrJ19DE527HBTLEG0-10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-46" value="Инициаторы боя&lt;br&gt;&lt;br&gt;По ним будет определяться, в чью пользу будет завершен бой" style="text;html=1;strokeColor=default;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="OIszrJ19DE527HBTLEG0-27">
+          <mxGeometry x="30" y="45" width="100" height="115" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-48" value="Если доходит QueueGame до инициатора боя или перескакивает его, то завершается бой. Поэтому важно при создании карты способностей деактивирующей способности отдельной команды все равно проверять состояние battlelink, даже если игрок пропускает ход. По другому алгоритм реализовать алгоритм непрактично" style="text;html=1;strokeColor=default;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="OIszrJ19DE527HBTLEG0-27">
+          <mxGeometry x="515" y="170" width="260" height="115" as="geometry" />
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-50" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="OIszrJ19DE527HBTLEG0-27" source="OIszrJ19DE527HBTLEG0-40" target="OIszrJ19DE527HBTLEG0-10">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="230" y="220" as="sourcePoint" />
+            <mxPoint x="280" y="170" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="380" y="220" />
+              <mxPoint x="120" y="220" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-51" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="OIszrJ19DE527HBTLEG0-27" source="OIszrJ19DE527HBTLEG0-17" target="OIszrJ19DE527HBTLEG0-14">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="290" y="440" as="sourcePoint" />
+            <mxPoint x="340" y="390" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="210" y="310" />
+              <mxPoint x="120" y="310" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="OIszrJ19DE527HBTLEG0-52" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="OIszrJ19DE527HBTLEG0-27" source="OIszrJ19DE527HBTLEG0-22" target="OIszrJ19DE527HBTLEG0-21">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="220" y="420" as="sourcePoint" />
+            <mxPoint x="270" y="370" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="140" y="390" />
+              <mxPoint x="100" y="390" />
+            </Array>
+          </mxGeometry>
         </mxCell>
       </root>
     </mxGraphModel>

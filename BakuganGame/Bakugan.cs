@@ -14,8 +14,9 @@ namespace BakuganGame
         public string name { get; set; }
         public uint bakuganID { get; set; }
         public int bakuganInGateID { get; set; }//ID на вороте (-1 значит что бакуган в инвентаре)
-        int x;
-        int y;
+        
+        public int x { get; set; }
+        public int y { get; set; }
 
         public BakuState state { get; set; }
                       //-1 - does not exist
@@ -27,6 +28,8 @@ namespace BakuganGame
         
 
         public uint team  { get; private set; }
+                    // 0 - команда наблюдателей
+                    // 1,2... - все остальные
         public uint owner { get; private set; }//BrawlerID
 
         //G level
@@ -46,6 +49,7 @@ namespace BakuganGame
         {
             state = BakuState.DoesntExist;
             bakuganInGateID = -1;
+            team = 0;
             gGlobal = gGame = this.g = 0;
         }
 

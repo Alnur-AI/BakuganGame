@@ -12,7 +12,7 @@ namespace BakuganGame
     {
         uint teamID; // нужно чтобы карта отличала врагов от друзей
         uint brawlerID;// Ссылка на пользователя карты способности
-        uint abilityID;// Нужно понимать порядок карты в инвентаре
+        public uint abilityID { get; set; }// Нужно понимать порядок карты в инвентаре
         public uint abilityType { get; set; }
 
         public bool isActivated{ get; set; }
@@ -20,9 +20,10 @@ namespace BakuganGame
 
         Field field;//Логика карты опирается на ситуацию на поле боя
 
-        public AbilityCard()
+        public AbilityCard(Field field)
         {
             abilityType = 1;
+            this.field = field;
             isActivated = false;
             isUsed = false;
 }

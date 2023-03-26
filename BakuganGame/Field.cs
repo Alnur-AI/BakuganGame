@@ -27,7 +27,6 @@ namespace BakuganGame
         public uint NbrTeam { get; private set; }
         public uint NbrBraw { get; private set; }
 
-        uint currQueueID;//Текущий игрок по списку взял управление
         public uint currGateX { get; private set; }//Осмотр ворот по Ох
         public uint currGateY { get; private set; }//Осмотр ворот по Оу
 
@@ -37,21 +36,20 @@ namespace BakuganGame
         string appLog;// логирование процессов и ошибок всего приложения (Console Information)
         string battleLog;// логирование процессов битвы во время выполнения приложения (Console Information)
 
-        public uint currBrawler{ get; private set; }
         int currBrawlerIndex = 0;
+        public uint currBrawler{ get; private set; }//Текущий игрок по списку взял управление
         public List<Tuple<uint, uint>> queueGame { get; private set; } //Список игроков и их принадлежность к команде
 
         
 
-        public List<uint> battleLinkHead { get; private set; }// Список бойцов - инициаторов 
-        public List<List<uint>> battleLink { get; private set; }// Список различных активных битв. Заметим что элемент battleLinkHead соответствует списку из battleLink
+        public List<List<Bakugan>> battleLink { get; set; }// Список бакуганов учавствующих в различных активных битвах. Заметим, что первый элемент каждого списка это инициатор боя
 
         public Field()
         {
             currGateX = 0;
             currGateY = 0;
 
-            
+            battleLink = new List<List<Bakugan>>();
 
             setAppLog($"Connecting battle.xml");
             bool xmlFileFound = false;
@@ -107,7 +105,7 @@ namespace BakuganGame
             brawler = new Brawler[NbrBraw];
             for (uint i = 0; i < NbrBraw; i++)
             {
-                brawler[i] = new Brawler(NbrBaku, NbrTeam, NbrBraw, i);
+                brawler[i] = new Brawler(NbrBaku, NbrTeam, NbrBraw, i,this);
                 setAppLog($"Field message: Allocate memory to Brawler {i}");
             }
 
@@ -115,20 +113,30 @@ namespace BakuganGame
             for (int i = 0; i < NbrBraw; i++)
                 for (int j = 0; j < NbrBaku; j++)
                 {
-                    gate[i, j] = new Gate(NbrBaku, NbrTeam, NbrBraw, i, j);
+                    gate[i, j] = new Gate(NbrBaku, NbrTeam, NbrBraw, i, j,this);
                     setAppLog($"Field message: Allocate memory to Gate ({i}, {j})");
                 }
             setAppLog($"Connecting brawlers from battle.xml");
             XmlNodeList xmlBrawler = xmlDoc.GetElementsByTagName("Brawler");
             for (int i = 0; i < xmlBrawler.Count; i++)
             {
-                int j = 0;
+                int j = 0;//количество бакуганов в парсинге
                 XmlNodeList brwlrTmp = xmlBrawler[i].ChildNodes;
                 foreach (XmlNode brwlrItem in brwlrTmp)
                 {
                     if (brwlrItem.Name == "TeamID")
                     {
                         brawler[i].teamID = uint.Parse(brwlrItem.InnerText);
+
+                        for (uint k = 0; k < NbrBaku; k++)
+                            brawler[i].bakugan[k].define(brawler[i].teamID, (uint)i, k);
+                        
+                        for (uint k = 0; k < 3 * NbrBaku; k++)
+                            brawler[i].abilityCard[k].define(brawler[i].teamID, (uint)i, k);
+                        
+                        for (uint k = 0; k < NbrBaku; k++)
+                            brawler[i].gateCard[k].define(brawler[i].teamID, (uint)i, k);
+                        
                         Console.WriteLine("TeamID " + brawler[i].teamID);
                     }
                     if (brwlrItem.Name == "Name")
@@ -238,9 +246,6 @@ namespace BakuganGame
             }
             
             setAppLog($"Field initialized\n\n");
-
-            //Предполагается, что поле содержит в себе списки боевых связей между бакуганами. Надо добавить
-
         }
 
 
@@ -518,12 +523,13 @@ namespace BakuganGame
             for (int j = 0; j < NbrBaku; j++)
                 for (int i = 0; i < NbrBraw; i++)
                 {
-                    if (gate[i, j].isBusy)
-                        printText(ConsoleColor.Green, 3 + i, 2 + j, "#");
-                    else
+                    if (!gate[i, j].isBusy)
                         printText(ConsoleColor.White, 3 + i, 2 + j, ".");
-                    if( i == currGateX && j == currGateY)
-                        printText(ConsoleColor.Red, 3 + i, 2 + j, "#");
+                    else
+                        printText(ConsoleColor.Green, 3 + i, 2 + j, "#");
+                    if (i == currGateX && j == currGateY)
+                        printText(ConsoleColor.Red, 3 + i, 2 + j, "*");
+
 
                 }
             
@@ -602,29 +608,43 @@ namespace BakuganGame
             
             return true;
         }
-
-        /// <summary>
-        /// Обязательна после конструктора. Каждый обьект на поле заполняется ссылкой field на текущее поле.
-        /// </summary>
-        /// <returns>Возвращает true - если удалось заполнить </returns>
-        public bool setReferenceField()
+        public bool drawBattleLink()
         {
-            for (int i = 0; i < NbrBraw; i++)
-            {
-                brawler[i].setField(this);
-                setAppLog($"Field message: set field address to brawler {i}");
-            }
-                
-            for (int i = 0; i < NbrBraw; i++)
-                for (int j = 0; j < NbrBaku; j++)
-                {
-                    gate[i, j].setField(this);
-                    setAppLog($"Field message: set field address to gate ({i}, {j})");
-                }
 
+            printText(ConsoleColor.Red, 95,0,"Queue Game: ");
+            printText(ConsoleColor.White, 80, 1, "---------------------------------------");
+
+            int strCount = 2;
+            foreach (Tuple<uint, uint> queueBrawler in queueGame)
+            {
+                if ( queueBrawler.Item1 == currBrawler )
+                    Console.BackgroundColor = ConsoleColor.DarkGray;
+                printText(ConsoleColor.White,80,strCount, brawler[queueBrawler.Item1].teamID + ": ");
+                printBrawName((int)queueBrawler.Item1, 83, strCount, brawler[queueBrawler.Item1].name);
+                Console.BackgroundColor = ConsoleColor.Black;
+                strCount ++;
+            }
+
+            printText(ConsoleColor.Red, 95, strCount++, "BattleLink: ");
+            printText(ConsoleColor.White, 80, strCount++, "---------------------------------------");
+
+            foreach (List<Bakugan> innerList in battleLink)
+            {
+                printText(ConsoleColor.White, 80, strCount, innerList.Count + ":  ");
+                foreach (Bakugan obj in innerList)
+                {
+                    if (obj.owner == currBrawler)
+                        Console.BackgroundColor = ConsoleColor.DarkGray;
+                    if (obj.owner == getNextPlayer())
+                        Console.BackgroundColor = ConsoleColor.Red;
+                    Console.Write(obj.name + " -> " );
+
+                    Console.BackgroundColor = ConsoleColor.Black;
+                }
+                strCount++;
+            }
             return true;
         }
-
 
         public void nextPlayer()
         {
@@ -633,6 +653,14 @@ namespace BakuganGame
                 currBrawlerIndex = 0;
 
             currBrawler = queueGame[currBrawlerIndex].Item1;
+        }
+        public uint getNextPlayer()
+        {
+            int tmp = currBrawlerIndex;
+            tmp++;
+            if (tmp >= NbrBraw)
+                tmp = 0;
+            return queueGame[tmp].Item1;
         }
 
         public void SortBrawlers()
@@ -659,16 +687,13 @@ namespace BakuganGame
                         break;
                     }
                     else
-                    {
                         i++;
-                    }
 
                 }
                 currTeam++;
                 if (currTeam > maxTeam)
-                {
                     currTeam = minTeam;
-                }
+                
             }
             tempLst = queueGame.GetRange(0, queueGame.Count);
             for (int i = 0; i < NbrBraw; i++)

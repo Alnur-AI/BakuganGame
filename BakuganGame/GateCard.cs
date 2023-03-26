@@ -12,7 +12,7 @@ namespace BakuganGame
     {
         uint teamID; // нужно чтобы карта отличала врагов от друзей
         uint brawlerID;// Ссылка на пользователя карты способности
-        uint gateID;// Нужно понимать порядок карты в инвентаре
+        public uint gateID{ get; set; }// Нужно понимать порядок карты в инвентаре
         public uint gateType { get; set; }// 0 - пустая, остальное ссылка на базу
 
         bool isActivated = false;
@@ -22,9 +22,10 @@ namespace BakuganGame
 
         Field field;//Логика карты опирается на ситуацию на поле боя
 
-        public GateCard()
+        public GateCard(Field field)
         {
             gateType = 1;
+            this.field = field;
             isPlaced = false;
         }
 
@@ -46,18 +47,6 @@ namespace BakuganGame
             return true;
         }
 
-
-        /// <summary>
-        /// Бойцу важно знать обстановку на поле. Добавляем ссылку field на всё поле
-        /// </summary>
-        /// <param name="field">Ссылка на игровое поле</param>
-        /// <returns>Возвращает true - если удалось правильно заполнить поле</returns>
-        public bool setField(Field field)
-        {
-            this.field = field;
-
-            return true;
-        }
 
 
         /// <summary>

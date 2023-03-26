@@ -27,15 +27,18 @@ namespace BakuganGame
         public Bakugan[] bakugan; //ссылка на бакуганов установленных на карте
         public GateCard gateCard; //установленная карта ворот
 
-        public Gate(uint NbrBaku, uint NbrTeam, uint NbrBraw, int x, int y) 
+        public Gate(uint NbrBaku, uint NbrTeam, uint NbrBraw, int x, int y, Field field) 
         {
             this.x = x;
             this.y = y;
 
             bakuganCount = 0;
+            this.field = field;
 
             bakugan = new Bakugan[NbrBaku * NbrBraw];
-            gateCard = new GateCard();
+            gateCard = new GateCard(field);
+
+
 
         }
 
@@ -71,7 +74,7 @@ namespace BakuganGame
                 isBusy = false;
                 bakuganCount = 0;
 
-                gateCard = new GateCard();
+                gateCard = new GateCard(field);
 
                 return true;
             }
@@ -85,20 +88,6 @@ namespace BakuganGame
         }
 
 
-        /// <summary>
-        /// Закрепить за воротами ссылку на всё поле
-        /// </summary>
-        /// <param name="field">ссылка на поле</param>
-        /// <returns>Возвращает true - если установить бакугана удалось</returns>
-        public bool setField(Field field)
-        {
-            this.field = field;
-            gateCard.setField(field);
-
-            field.setAppLog($"Gate ({x},{y}) message: set field address");
-
-            return true;
-        }
 
         // Дебаг
         public void printInfo()
