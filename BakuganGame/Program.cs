@@ -47,79 +47,6 @@ namespace BakuganGame
             key = Console.ReadKey(true);
         }
 
-        public static void checkBattleRes(Field field)
-        {
-            foreach (List<Bakugan> innerList in field.battleLink)
-            {
-                if (innerList.Count == 0)
-                    continue;
-                if (innerList[0].owner == field.currBrawler)
-                {
-                    // Создаем словарь для хранения сумм g для каждой команды
-                    Dictionary<uint, int> teamG = new Dictionary<uint, int>();
-
-                    foreach (Bakugan bakugan in innerList)
-                    {
-                        // Подсчет суммы g для каждой команды
-                        if (teamG.ContainsKey(bakugan.team))
-                        {
-                            teamG[bakugan.team] += bakugan.g;
-                        }
-                        else
-                        {
-                            teamG.Add(bakugan.team, bakugan.g);
-                        }
-                    }
-
-                    int maxG = 0;
-                    List<uint> winnerTeams = new List<uint>();
-
-                    // Поиск команды с наибольшей суммой g
-                    foreach (KeyValuePair<uint, int> team in teamG)
-                    {
-                        if (team.Value > maxG)
-                        {
-                            maxG = team.Value;
-                            winnerTeams.Clear();
-                            winnerTeams.Add(team.Key);
-                        }
-                        else if (team.Value == maxG)
-                        {
-                            winnerTeams.Add(team.Key);
-                        }
-                    }
-
-                    // Вывод сообщений о результатах боя и удаление побежденных бакуганов
-                    foreach (Bakugan bakugan in innerList.ToList())
-                    {
-                        // Если карта опустела окончательно сделать правильную очистку карты ворот
-                        // Нужна модийикация списка
-                        
-
-                        field.gate[bakugan.x, bakugan.y].bakugan.RemoveAll(x => x == bakugan);
-                        //field.gate[bakugan.x, bakugan.y].bakuganCount--;
-
-
-                        if (winnerTeams.Contains(bakugan.team))
-                            field.brawler[bakugan.owner].bakugan[bakugan.bakuganID].state = BakuState.InInventory;
-                        else
-                        {
-                            field.brawler[bakugan.owner].loseBakugan++;
-                            field.brawler[bakugan.owner].bakugan[bakugan.bakuganID].state = BakuState.KnockedOut;
-                        }
-
-                        // Поиск и удаление бакуганов из BattleLink
-                        foreach (List<Bakugan> innerList2 in field.battleLink)
-                            innerList2.RemoveAll(x => x == bakugan);
-
-                    }
-                }
-            }
-            field.battleLink.RemoveAll(list => list.Count == 0);
-            foreach (List<Bakugan> innerList in field.battleLink)
-                innerList.RemoveAll(x => x == null);
-
-        }
 
         static void Main(string[] args)
         {
@@ -129,13 +56,14 @@ namespace BakuganGame
             field.SortBrawlers();
 
 
-            ConsoleKeyInfo key = Console.ReadKey(true);
+            ConsoleKeyInfo key =  Console.ReadKey(true);
             while (true)// Пока не завершиться программа
             {
                 waitTillPressed(ref key);
 
                 // Управление картой
                 field.controlField(key);//WASD 
+                field.controlInGame(key); 
 
                 // Выход из игры
                 if (key.Key == ConsoleKey.Escape)
@@ -149,49 +77,15 @@ namespace BakuganGame
                         for (int j = 0; j < field.NbrBaku; j++)
                             if (field.gate[i, j].isBusy)
                                 field.gate[i, j].removePlayerGate();
+
+                    field.printAppLog();
+
+                    Console.Clear();
+                    Console.WriteLine("Permanent exit thougth the ESC. All battle information saved in AppLot.txt");
+
                     break;
                 }
 
-                // Разместить карту ворот
-                if (key.Key == ConsoleKey.Q)
-                {
-                    uint choicedGate = 0;
-                    waitTillPressed(ref key);
-
-                    if (key.Key == ConsoleKey.D1)
-                        choicedGate = 0;
-                    if (key.Key == ConsoleKey.D2)
-                        choicedGate = 1;
-                    if (key.Key == ConsoleKey.D3)
-                        choicedGate = 2;
-
-                    field.brawler[field.currBrawler].setGate((int)field.currGateX, (int)field.currGateY, choicedGate);
-                }
-
-                // Разместить бакугана
-                if (key.Key == ConsoleKey.E)
-                {
-                    int choicedBaku = 0;
-                    waitTillPressed(ref key);
-
-                    if (key.Key == ConsoleKey.D1)
-                        choicedBaku = 0;
-                    if (key.Key == ConsoleKey.D2)
-                        choicedBaku = 1;
-                    if (key.Key == ConsoleKey.D3)
-                        choicedBaku = 2;
-
-                    field.brawler[field.currBrawler].ForceThrowBakugan((int)field.currGateX, (int)field.currGateY, choicedBaku);
-                }
-
-
-                // Следующий игрок делает свой ход
-                // Подводим итог битвы через BattleLink
-                if (key.Key == ConsoleKey.R)
-                {
-                    field.nextPlayer();
-                    checkBattleRes(field);
-                }
 
 
 
@@ -209,15 +103,17 @@ namespace BakuganGame
 
 
                 // Пункт 2.3: Выводим изображение
+
                 Console.Clear();
 
                 field.drawField();
                 field.drawFieldInfo();
                 field.drawGateInfo();
+                field.drawControl();
 
                 field.drawBattleLink();
 
-                field.printAppLog();
+                
             }
             
         }

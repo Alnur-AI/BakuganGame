@@ -44,6 +44,7 @@ namespace BakuganGame
 
         }
 
+
         /// <summary>
         /// Принудительно поместить карту gateID от бойца brawlerID 
         /// </summary>
@@ -88,17 +89,6 @@ namespace BakuganGame
 
                 return false;
             }
-        }
-
-
-
-        // Дебаг
-        public void printInfo()
-        {
-            Console.WriteLine($"x position: {x}");
-            Console.WriteLine($"y position: {y}");
-            Console.WriteLine($"is busy: {isBusy}"); 
-            //Console.WriteLine($"count of bakugan in gate: {bakuganCount}");
         }
 
     }

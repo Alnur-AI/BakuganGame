@@ -58,6 +58,7 @@ namespace BakuganGame
             this.brawlerID = brawlerID;
         }
         
+
         /// <summary>
         /// Боец насильно инициирует бросок бакугана bakuganID на ворота (x,y)
         /// </summary>
@@ -319,7 +320,9 @@ namespace BakuganGame
             //Console.WriteLine(field.gate[x, y].isBusy);
             if (0 <= x && x < field.NbrBraw && 
                 0 <= y && y < field.NbrBaku &&
-                !field.gate[x, y].isBusy && !gateCard[gateID].isPlaced)
+                !field.gate[x, y].isBusy && 
+                !gateCard[gateID].isPlaced && 
+                usedGateCard!= field.NbrBaku )
             {
                 
                 bool ableActivate = field.gate[x, y].placePlayerGate(brawlerID, gateID);
@@ -352,12 +355,14 @@ namespace BakuganGame
                     field.setAppLog($"Brawler {brawlerID} Error message: Brawler is trying to set on non empty gate");
 
                 if (gateCard[gateID].isPlaced)
-                    field.setAppLog($"Brawler {brawlerID} Error message: Brawler trying to set used gateCard");
-                
+                    field.setAppLog($"Brawler {brawlerID} Error message: Brawler trying to set used gateCard {gateID}");
 
+                if (usedGateCard == field.NbrBaku)
+                    field.setAppLog($"Brawler {brawlerID} Error message: All cards is already used");
                 return false;
             }
         }
+
 
         /// <summary>
         /// Установить карту смерти
@@ -382,6 +387,7 @@ namespace BakuganGame
             }
         }
         
+
         /// <summary>
         /// Убрать карту смерти
         /// </summary>

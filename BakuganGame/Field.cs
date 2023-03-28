@@ -10,9 +10,31 @@ using static System.Reflection.Metadata.BlobBuilder;
 using System.Globalization;
 using static System.Net.Mime.MediaTypeNames;
 using System.ComponentModel.Design;
+using System.Xml.Linq;
 
 namespace BakuganGame
 {
+    public class Menu
+    {
+        public string Name { get; set; }
+        public int Id { get; set; }
+        public Menu Parent { get; set; }
+        public List<Menu> Children { get; set; }
+
+        public Menu(string name, int id, Menu parent = null)
+        {
+            Name = name;
+            Id = id;
+            Parent = parent;
+            Children = new List<Menu>();
+        }
+
+        public void AddChild(Menu child)
+        {
+            child.Parent = this;
+            Children.Add(child);
+        }
+    }
     /*
         Данный класс определяет поле, которое содержит в себе 
         Фиксированное количество ворот на время игры
@@ -27,6 +49,11 @@ namespace BakuganGame
         public uint NbrTeam { get; private set; }
         public uint NbrBraw { get; private set; }
 
+        // добавить константы ограничения бакуганов за один ход
+        public uint MaxGateTurn { get; private set; }
+        public uint MaxBakuTurn { get; private set; }
+        public uint MaxAbilTurn { get; private set; }
+
         public uint currGateX { get; private set; }//Осмотр ворот по Ох
         public uint currGateY { get; private set; }//Осмотр ворот по Оу
 
@@ -38,9 +65,16 @@ namespace BakuganGame
 
         int currBrawlerIndex = 0;
         public uint currBrawler{ get; private set; }//Текущий игрок по списку взял управление
+        public int currUsedBaku { get; private set; }
+        public int currUsedGate { get; private set; }
+        public int currUsedAbil { get; private set; }
+
         public List<Tuple<uint, uint>> queueGame { get; private set; } //Список игроков и их принадлежность к команде
 
-        
+        public Menu menu { get; set; }
+        public Menu subMenu { get; set; }
+        public int selectMenu { get; set; }
+        public Stack <int> prevSelectMenu { get; set; }
 
         public List<List<Bakugan>> battleLink { get; set; }// Список бакуганов учавствующих в различных активных битвах. Заметим, что первый элемент каждого списка это инициатор боя
 
@@ -48,6 +82,9 @@ namespace BakuganGame
         {
             currGateX = 0;
             currGateY = 0;
+
+            
+            
 
             battleLink = new List<List<Bakugan>>();
 
@@ -75,6 +112,12 @@ namespace BakuganGame
                                     NbrTeam = uint.Parse(cnstItem.InnerText);
                                 if (cnstItem.Name == "NbrBraw")
                                     NbrBraw = uint.Parse(cnstItem.InnerText);
+                                if (cnstItem.Name == "MaxAbilTurn")
+                                    MaxAbilTurn = uint.Parse(cnstItem.InnerText);
+                                if (cnstItem.Name == "MaxBakuTurn")
+                                    MaxBakuTurn = uint.Parse(cnstItem.InnerText);
+                                if (cnstItem.Name == "MaxGateTurn")
+                                    MaxGateTurn = uint.Parse(cnstItem.InnerText);
                             }
                         }
 
@@ -244,17 +287,82 @@ namespace BakuganGame
                     }
                 }
             }
-            
+            prevSelectMenu = new Stack<int>();
+            defineMenu();
             setAppLog($"Field initialized\n\n");
         }
 
+        public void defineMenu()
+        {
+            int count = 1;
+
+            menu = new Menu("Choice Action", 0);
+
+            Menu grandpa;
+            Menu parent = new Menu("Set Gate Card", count++, menu);
+            menu.Children.Add(parent);
+
+            
+            for (int i = 0; i < NbrBaku; i++)
+            {
+                parent = new Menu("Gate " + (i + 1), count++, parent);
+                menu.Children[0].Children.Add(parent);
+                parent = parent.Parent;
+                menu.Children[0].Children[i].Children.Add(new Menu("Yes", count++, parent));
+                menu.Children[0].Children[i].Children.Add(new Menu("No", count++, parent));
+            }
+            
+
+            parent = new Menu("Throw bakugan", count++, menu);
+            menu.Children.Add(parent);
+            
+            for (int i = 0; i < NbrBaku; i++)
+            {
+                parent = new Menu("Bakugan " + (i + 1), count++, parent);
+                menu.Children[1].Children.Add(parent);
+                parent = parent.Parent;
+                menu.Children[1].Children[i].Children.Add(new Menu("Yes", count++, parent));
+                menu.Children[1].Children[i].Children.Add(new Menu("No", count++, parent));
+            }
+            
+
+            parent = new Menu("Use Ability Card", count++, menu);
+            menu.Children.Add(parent);
+            
+            for (int i = 0; i < NbrBaku; i++)
+            {
+                parent = new Menu("Ability Card " + (i + 1), count++, parent);
+                menu.Children[2].Children.Add(parent);
+                parent = parent.Parent;
+                menu.Children[2].Children[i].Children.Add(new Menu("Yes", count++, parent));
+                menu.Children[2].Children[i].Children.Add(new Menu("No", count++, parent));
+            }
+            
+
+            parent = new Menu("Open Gate", count++, menu);
+            menu.Children.Add(parent);
+
+            //menu.Children[3].Children.Add(new Menu("You Sure?", count++, parent));
+            menu.Children[3].Children.Add(new Menu("Yes", count++, parent));
+            menu.Children[3].Children.Add(new Menu("No", count++, parent));
 
 
+            parent = new Menu("Doom Card:", count++, menu);
+            menu.Children.Add(parent);
+
+            //menu.Children[3].Children.Add(new Menu("You Sure?", count++, parent));
+            menu.Children[4].Children.Add(new Menu("Yes", count++, parent));
+            menu.Children[4].Children.Add(new Menu("No", count++, parent));
 
 
+            parent = new Menu("Skip turn", count++, menu);
+            menu.Children.Add(parent);
+                //menu.Children[5].Children.Add(new Menu("You Sure?", count++, parent));
+            menu.Children[5].Children.Add(new Menu("Yes", count++, parent));
+            menu.Children[5].Children.Add(new Menu("No", count++, parent));
 
-
-
+            subMenu = menu;
+        }
 
 
 
@@ -303,7 +411,7 @@ namespace BakuganGame
 
         public bool controlField(ConsoleKeyInfo key)
         {
-            if (key.Key == ConsoleKey.LeftArrow || key.Key == ConsoleKey.A)
+            if (key.Key == ConsoleKey.A)
             {
                 
                 if (currGateX > 0)
@@ -311,21 +419,21 @@ namespace BakuganGame
                 else if (currGateX <= 0)
                     currGateX = 0;
             }
-            if (key.Key == ConsoleKey.RightArrow || key.Key == ConsoleKey.D)
+            if ( key.Key == ConsoleKey.D)
             {
                 if(currGateX < NbrBraw-1)
                     currGateX++;
                 else if(currGateX >= NbrBraw)
                     currGateX = NbrBraw-1;
             }
-            if (key.Key == ConsoleKey.UpArrow || key.Key == ConsoleKey.W)
+            if ( key.Key == ConsoleKey.W)
             {
                 if (currGateY > 0)
                     currGateY--;
                 else if (currGateY <= 0)
                     currGateY = 0;
             }
-            if (key.Key == ConsoleKey.DownArrow || key.Key == ConsoleKey.S)
+            if ( key.Key == ConsoleKey.S)
             {
                 if (currGateY < NbrBaku - 1)
                     currGateY++;
@@ -333,6 +441,125 @@ namespace BakuganGame
                     currGateY = NbrBaku-1;
             }
             return true;
+        }
+        public bool controlInGame(ConsoleKeyInfo key)
+        {
+
+            switch (key.Key)
+            {
+                case ConsoleKey.UpArrow:
+                    selectMenu--;
+                    if (selectMenu < 0)
+                        selectMenu = subMenu.Children.Count-1;
+                    //Console.WriteLine(subMenu.Children[selectMenu].Name);
+                    break;
+
+                case ConsoleKey.DownArrow:
+                    selectMenu++;
+                    if (selectMenu >= subMenu.Children.Count)
+                        selectMenu = 0;
+                    //Console.WriteLine(subMenu.Children[selectMenu].Name);
+                    break;
+
+                case ConsoleKey.Backspace:
+                    if (subMenu.Parent != null)
+                    {
+                        subMenu = subMenu.Parent;
+                        selectMenu = prevSelectMenu.Pop();
+                    }
+                    
+                    break;
+
+                case ConsoleKey.Enter:
+                    if (subMenu.Children.Count > selectMenu)
+                    {
+                        if (subMenu.Children[selectMenu] != null && subMenu.Children[selectMenu].Children.Count != 0)
+                        {
+                            subMenu = subMenu.Children[selectMenu];
+                            prevSelectMenu.Push(selectMenu);
+                            selectMenu = 0;
+                        }
+                        else
+                        {
+                            selectControlLogic();
+                        }
+                    }
+                    
+                    break;
+            }
+            return true;
+        }
+        public void selectControlLogic()
+        {
+            // Если выбран вариант yes или no
+            if (subMenu.Children[selectMenu].Name == "No")
+            {
+                subMenu = subMenu.Parent;
+                selectMenu = prevSelectMenu.Pop();
+                //selectMenu = 0;
+                //prevSelectMenu.Clear();
+            }              
+            if(subMenu.Children[selectMenu].Name == "Yes")
+            {
+
+                if (subMenu.Name.Length >= 10)
+                {
+                    if (subMenu.Name.Substring(0, 10) == "Doom Card:")
+                    {
+                        if (brawler[currBrawler].setDoom)
+                            brawler[currBrawler].removeDoomCard();
+                        
+                        else
+                            brawler[currBrawler].setDoomCard();
+                        
+                    }
+                }
+                if (subMenu.Name.Length >= 9)
+                {
+                    if (subMenu.Name.Substring(0, 9) == "Skip turn")
+                    {
+                        nextPlayer();
+                        checkBattleRes(this);
+
+                        
+
+                        subMenu = menu;
+                        return;
+                    }
+                }
+
+
+                // Облатсь выбора бакуганов карт ворот и способностей
+                int tempChoice = prevSelectMenu.Pop();
+                if (subMenu.Name.Length >= 7)
+                {
+                    if (subMenu.Name.Substring(0, 7) == "Bakugan")
+                    {
+                        if(currUsedBaku <= MaxBakuTurn)
+                            brawler[currBrawler].ForceThrowBakugan((int)currGateX, (int)currGateY, tempChoice);
+                        currUsedBaku++;
+                    }
+                        
+                    
+                    if (subMenu.Name.Substring(0, 7) == "Ability")
+                    {
+                        // Код появится когда доработается алгоритмы способностей
+                        currUsedAbil++;
+                    }
+                }              
+                if (subMenu.Name.Length >= 4)
+                    if (subMenu.Name.Substring(0, 4) == "Gate")
+                    {
+                        if(currUsedGate <= MaxGateTurn)
+                            brawler[currBrawler].setGate((int)currGateX, (int)currGateY, (uint)tempChoice);
+                        currUsedGate++;
+                    }
+                prevSelectMenu.Push(tempChoice);
+
+
+                subMenu = menu;
+            }
+            
         }
 
         public void printBakuName(int brawlerID, int bakuganID, int x, int y, string str)
@@ -535,6 +762,127 @@ namespace BakuganGame
             
             return true;
         }
+        public bool drawControl()
+        {
+            printText(ConsoleColor.Red, 53, 0, "Control");
+            printText(ConsoleColor.White, 40, 1, "---------------------------------------");
+            printText(ConsoleColor.White, 53, 2, subMenu.Name);
+
+            int index = 0;
+            while (index < subMenu.Children.Count)
+            {
+
+                bool isDoomCard = false;
+                bool isBakuganLabel = false;
+                bool isGateCardLabel = false;
+                bool isAbilityLabel = false;
+
+                if (subMenu.Children[index].Name.Length >= 10)
+                {
+                    if (subMenu.Children[index].Name.Substring(0, 10) == "Doom Card:")
+                    {
+                        isDoomCard = true;
+
+                        if (index == selectMenu)
+                        {
+                            printText(ConsoleColor.Black, ConsoleColor.White, 40, index + 3, subMenu.Children[index].Name);
+                            if (brawler[currBrawler].setDoom)
+                            {
+                                printText(ConsoleColor.Green, ConsoleColor.White, 50, index + 3, "On");
+                            }
+                            else
+                            {
+                                printText(ConsoleColor.Red, ConsoleColor.White, 50, index + 3, "Off");
+                            }
+                        }
+                        else
+                        {
+                            printText(ConsoleColor.White, ConsoleColor.Black, 40, index + 3, subMenu.Children[index].Name);
+                            if (brawler[currBrawler].setDoom)
+                            {
+                                printText(ConsoleColor.Green, ConsoleColor.Black, 50, index + 3, "On");
+                            }
+                            else
+                            {
+                                printText(ConsoleColor.Red, ConsoleColor.Black, 50, index + 3, "Off");
+                            }
+                        }
+                    }
+                }
+
+                if (subMenu.Children[index].Name.Length >= 7)
+                {
+                    if (subMenu.Children[index].Name.Substring(0, 7) == "Bakugan")
+                    {
+                        isBakuganLabel = true;
+                        if (index == selectMenu)
+                        {
+                            printText(ConsoleColor.Black, ConsoleColor.White, 40, index + 3, brawler[currBrawler].bakugan[index].name);
+                        }
+                        else if (brawler[currBrawler].bakugan[index].state == BakuState.InInventory)
+                        {
+                            printBakuName((int)currBrawler, index, 40, index + 3, brawler[currBrawler].bakugan[index].name);
+                        }
+                        else if (brawler[currBrawler].bakugan[index].state == BakuState.OnGate)
+                        {
+                            printBakuName((int)currBrawler, index, 40, index + 3, $"({brawler[currBrawler].bakugan[index].x},{brawler[currBrawler].bakugan[index].y})" + brawler[currBrawler].bakugan[index].name);
+                        }
+                        else if (brawler[currBrawler].bakugan[index].state == BakuState.KnockedOut)
+                        {
+                            Console.BackgroundColor = ConsoleColor.DarkRed;
+                            printBakuName((int)currBrawler, index, 40, index + 3, brawler[currBrawler].bakugan[index].name);
+                            Console.BackgroundColor = ConsoleColor.White;
+                        }
+                        else if (brawler[currBrawler].bakugan[index].state == BakuState.Killed)
+                        {
+                            printText(ConsoleColor.Black, ConsoleColor.White, 40, index + 3, "KILLED");
+                        }
+                    }
+                    if (subMenu.Children[index].Name.Substring(0, 7) == "Ability")
+                    {
+                        isAbilityLabel = true;
+                        
+                    }
+                }
+                if (subMenu.Children[index].Name.Length >= 4)
+                {
+                    if (subMenu.Children[index].Name.Substring(0, 4) == "Gate")
+                    {
+                        isGateCardLabel = true;
+                        if (currUsedGate >= MaxGateTurn) 
+                        {
+                            printText(ConsoleColor.Red, 40, index + 3, "UNAVAILABLE");
+                        }
+                        else if (index == selectMenu)
+                        {
+                            printText(ConsoleColor.Black, ConsoleColor.White, 40, index + 3, subMenu.Children[index].Name);
+                        }
+                        else if (brawler[currBrawler].gateCard[index].isPlaced)
+                        {
+                            printText(ConsoleColor.Red, 40, index + 3, subMenu.Children[index].Name);
+                        }
+                        else
+                        {
+                            printText(ConsoleColor.White, 40, index + 3, subMenu.Children[index].Name);
+                        }
+                    }
+                }
+                
+                if (!isBakuganLabel && !isGateCardLabel && !isDoomCard)
+                {
+                    printText(ConsoleColor.White, ConsoleColor.Black, 40, index + 3, subMenu.Children[index].Name);
+                   
+                }
+                if (index == selectMenu && (!isBakuganLabel && !isGateCardLabel && !isDoomCard))
+                {
+                    printText(ConsoleColor.Black, ConsoleColor.White, 40, index + 3, subMenu.Children[index].Name);
+                }
+
+                
+                index++;
+            }
+            return true;
+        }
         public bool drawFieldInfo()
         {
             //Field Information
@@ -648,11 +996,17 @@ namespace BakuganGame
 
         public void nextPlayer()
         {
+            currUsedAbil = 0;
+            currUsedBaku = 0;
+            currUsedGate = 0;
+
             currBrawlerIndex++;
             if(currBrawlerIndex >= NbrBraw)
                 currBrawlerIndex = 0;
 
             currBrawler = queueGame[currBrawlerIndex].Item1;
+
+            prevSelectMenu.Clear();
         }
         public uint getNextPlayer()
         {
@@ -703,5 +1057,86 @@ namespace BakuganGame
             }
             //queueGame.ForEach(Console.WriteLine);
         }
+
+
+
+        public static void checkBattleRes(Field field)
+        {
+            foreach (List<Bakugan> innerList in field.battleLink)
+            {
+                if (innerList.Count == 0)
+                    continue;
+                if (innerList[0].owner == field.currBrawler)
+                {
+                    // Создаем словарь для хранения сумм g для каждой команды
+                    Dictionary<uint, int> teamG = new Dictionary<uint, int>();
+
+                    foreach (Bakugan bakugan in innerList)
+                    {
+                        // Подсчет суммы g для каждой команды
+                        if (teamG.ContainsKey(bakugan.team))
+                        {
+                            teamG[bakugan.team] += bakugan.g;
+                        }
+                        else
+                        {
+                            teamG.Add(bakugan.team, bakugan.g);
+                        }
+                    }
+
+                    int maxG = 0;
+                    List<uint> winnerTeams = new List<uint>();
+
+                    // Поиск команды с наибольшей суммой g
+                    foreach (KeyValuePair<uint, int> team in teamG)
+                    {
+                        if (team.Value > maxG)
+                        {
+                            maxG = team.Value;
+                            winnerTeams.Clear();
+                            winnerTeams.Add(team.Key);
+                        }
+                        else if (team.Value == maxG)
+                        {
+                            winnerTeams.Add(team.Key);
+                        }
+                    }
+
+                    // Вывод сообщений о результатах боя и удаление побежденных бакуганов
+                    foreach (Bakugan bakugan in innerList.ToList())
+                    {
+                        // Если карта опустела окончательно сделать правильную очистку карты ворот
+                        // Нужна модийикация списка
+
+
+                        field.gate[bakugan.x, bakugan.y].bakugan.RemoveAll(x => x == bakugan);
+
+                        if (field.gate[bakugan.x, bakugan.y].bakugan.Count == 0)
+                            field.gate[bakugan.x, bakugan.y].removePlayerGate();
+
+
+                        if (winnerTeams.Contains(bakugan.team))
+                            field.brawler[bakugan.owner].bakugan[bakugan.bakuganID].state = BakuState.InInventory;
+                        else
+                        {
+                            field.brawler[bakugan.owner].loseBakugan++;
+                            field.brawler[bakugan.owner].bakugan[bakugan.bakuganID].state = BakuState.KnockedOut;
+                        }
+
+                        // Поиск и удаление бакуганов из BattleLink
+                        foreach (List<Bakugan> innerList2 in field.battleLink)
+                            innerList2.RemoveAll(x => x == bakugan);
+
+                    }
+                }
+            }
+            field.battleLink.RemoveAll(list => list.Count == 0);
+            foreach (List<Bakugan> innerList in field.battleLink)
+                innerList.RemoveAll(x => x == null);
+
+        }
+
+
+
     }
 }
