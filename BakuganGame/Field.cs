@@ -764,7 +764,7 @@ namespace BakuganGame
         }
         public bool drawControl()
         {
-            printText(ConsoleColor.Red, 53, 0, "Control");
+            printText(ConsoleColor.Red, 55, 0, "Control");
             printText(ConsoleColor.White, 40, 1, "---------------------------------------");
             printText(ConsoleColor.White, 53, 2, subMenu.Name);
 
@@ -975,6 +975,54 @@ namespace BakuganGame
 
             printText(ConsoleColor.Red, 95, strCount++, "BattleLink: ");
             printText(ConsoleColor.White, 80, strCount++, "---------------------------------------");
+            int gTotal = 0;
+            int tempTeamCnt = 0;
+
+
+            foreach (List<Bakugan> innerList in battleLink)
+            {
+                printText(ConsoleColor.Black, ConsoleColor.Gray, 80, strCount++, "Battle " + "                     Steps Left ");
+                printBrawName((int)innerList[0].owner, 80, strCount, brawler[innerList[0].owner].name + ":");
+                printBakuName((int)innerList[0].owner, (int)innerList[0].bakuganID, 82 + brawler[innerList[0].owner].name.Length, strCount, innerList[0].name);
+
+                uint tempqueue = (uint)queueGame.FindIndex(x=>x.Item1 == innerList[0].owner);
+                uint tempcurr = (NbrBraw - (uint)currBrawlerIndex +tempqueue)% NbrBraw;
+                if (tempcurr == 0)
+                    tempcurr = NbrBraw;
+                printText(ConsoleColor.White, 113, strCount++, "" + tempcurr  );
+
+                List<Bakugan> tempList = new List<Bakugan>(innerList);
+                tempList.Sort((x, y) => x.team.CompareTo(y.team));
+                for (int j = 1; j <= NbrTeam; j++)
+                {
+                    printText(ConsoleColor.Black, ConsoleColor.Gray, 80, strCount++, "Team " + (j) + "                        G power  ");
+
+
+                    for (int i = 0; i < tempList.Count; i++)
+                    {
+                        if (j == tempList[i].team)
+                        {
+                            uint bakuOwner = tempList[i].owner;
+                            uint bakuID = tempList[i].bakuganID;
+                            string brawName = brawler[bakuOwner].name;
+                            printBrawName((int)bakuOwner, 80, strCount, brawName + ":");
+                            printBakuName((int)bakuOwner, (int)bakuID, 82 + brawName.Length, strCount, tempList[i].name);
+                            printText(ConsoleColor.White, 112, strCount++, "" + tempList[i].g);
+                            gTotal += tempList[i].g;
+                            tempTeamCnt++;
+                        }
+                    }
+
+                    printText(ConsoleColor.White, 80, strCount, "Total G power: ");
+                    printText(ConsoleColor.White, 112, strCount++, "" + gTotal);
+                    tempTeamCnt++;
+                    gTotal = 0;
+                }
+                strCount++;
+            }
+            /*
+            printText(ConsoleColor.Red, 95, strCount++, "BattleLink: ");
+            printText(ConsoleColor.White, 80, strCount++, "---------------------------------------");
 
             foreach (List<Bakugan> innerList in battleLink)
             {
@@ -991,6 +1039,7 @@ namespace BakuganGame
                 }
                 strCount++;
             }
+            */
             return true;
         }
 

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Runtime.InteropServices;
+using System.Security.Principal;
 
 namespace BakuganGame
 {
@@ -46,6 +47,24 @@ namespace BakuganGame
 
             key = Console.ReadKey(true);
         }
+        public static void Exit(Field field)
+        {
+            for (int i = 0; i < field.NbrBraw; i++)
+                for (int j = 0; j < 3 * field.NbrBaku; j++)
+                    if (field.brawler[i].abilityCard[j].isActivated)
+                        field.brawler[i].abilityCard[j].deactivate();
+
+            for (int i = 0; i < field.NbrBraw; i++)
+                for (int j = 0; j < field.NbrBaku; j++)
+                    if (field.gate[i, j].isBusy)
+                        field.gate[i, j].removePlayerGate();
+
+            field.printAppLog();
+
+            Console.Clear();
+            Console.WriteLine("Permanent exit thougth the ESC. All battle information saved in AppLot.txt");
+
+        }
 
 
         static void Main(string[] args)
@@ -68,24 +87,36 @@ namespace BakuganGame
                 // Выход из игры
                 if (key.Key == ConsoleKey.Escape)
                 {
-                    for (int i = 0; i < field.NbrBraw; i++)
-                        for (int j = 0; j < 3 * field.NbrBaku; j++)
-                            if (field.brawler[i].abilityCard[j].isActivated)
-                                field.brawler[i].abilityCard[j].deactivate();
-                        
-                    for (int i = 0; i < field.NbrBraw; i++)
-                        for (int j = 0; j < field.NbrBaku; j++)
-                            if (field.gate[i, j].isBusy)
-                                field.gate[i, j].removePlayerGate();
-
-                    field.printAppLog();
-
-                    Console.Clear();
-                    Console.WriteLine("Permanent exit thougth the ESC. All battle information saved in AppLot.txt");
-
+                    Exit(field);
                     break;
                 }
 
+                uint[] teamKilledCount = new uint[field.NbrTeam];
+                for (int j = 1; j <= field.NbrTeam; j++)
+                    for (int i = 0; i < field.NbrBraw; i++)
+                    {
+                        if (field.brawler[i].teamID == j)
+                            teamKilledCount[j-1] += field.brawler[i].loseBakugan;
+                    }
+
+                int winTeam = 0;
+                bool winCont = true;
+                for (int i = 0; i < teamKilledCount.Length; i++)
+                {
+                    if (teamKilledCount[i] != field.NbrBraw)
+                    {
+                        winCont = false;
+                        winTeam = i;
+                        break;
+                    }
+                }
+
+
+                if (winCont == false)
+                {
+                    Exit(field);
+                    Console.WriteLine($"Winner team: {winTeam}");
+                }
 
 
 
@@ -113,7 +144,7 @@ namespace BakuganGame
 
                 field.drawBattleLink();
 
-                
+               
             }
             
         }
