@@ -112,7 +112,7 @@ namespace BakuganGame
                 }
 
 
-                if (winCont == false)
+                if (winCont == true)
                 {
                     Exit(field);
                     Console.WriteLine($"Winner team: {winTeam}");
