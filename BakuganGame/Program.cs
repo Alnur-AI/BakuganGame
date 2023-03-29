@@ -88,34 +88,48 @@ namespace BakuganGame
                 if (key.Key == ConsoleKey.Escape)
                 {
                     Exit(field);
+
+                    Console.Clear();
+                    Console.WriteLine("Permanent exit thougth the ESC. All battle information saved in AppLot.txt");
                     break;
                 }
 
                 uint[] teamKilledCount = new uint[field.NbrTeam];
-                for (int j = 1; j <= field.NbrTeam; j++)
-                    for (int i = 0; i < field.NbrBraw; i++)
+                int[] teamBrawCount = new int[field.NbrTeam];
+
+                for (int i = 0; i < field.NbrBraw; i++)
+                    for (int j = 1; j <= field.NbrTeam; j++)
                     {
                         if (field.brawler[i].teamID == j)
-                            teamKilledCount[j-1] += field.brawler[i].loseBakugan;
+                        {
+                            teamKilledCount[j - 1] += field.brawler[i].loseBakugan;
+                            teamBrawCount[j - 1]++;
+                        }
+                        
                     }
 
+
+                // ДОРАБОТАТЬ 
                 int winTeam = 0;
-                bool winCont = true;
-                for (int i = 0; i < teamKilledCount.Length; i++)
+                int winCont = 0;
+                for (int i = 0; i < field.NbrTeam; i++)
                 {
-                    if (teamKilledCount[i] != field.NbrBraw)
+                    if (teamKilledCount[i] != teamBrawCount[i])
                     {
-                        winCont = false;
                         winTeam = i;
-                        break;
+                    }
+                    else
+                    {
+                        winCont++;
                     }
                 }
 
 
-                if (winCont == true)
+                if (winCont == field.NbrTeam - 1)
                 {
                     Exit(field);
                     Console.WriteLine($"Winner team: {winTeam}");
+                    break;
                 }
 
 
@@ -144,7 +158,10 @@ namespace BakuganGame
 
                 field.drawBattleLink();
 
-               
+                Console.SetCursorPosition(0,23);
+
+                for (int i = 0; i < field.NbrTeam; i++)
+                    Console.Write($"{teamKilledCount[i]} ");
             }
             
         }
