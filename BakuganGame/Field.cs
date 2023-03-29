@@ -163,6 +163,7 @@ namespace BakuganGame
             XmlNodeList xmlBrawler = xmlDoc.GetElementsByTagName("Brawler");
             for (int i = 0; i < xmlBrawler.Count; i++)
             {
+                Console.WriteLine("Brawler No" + i);
                 int j = 0;//количество бакуганов в парсинге
                 XmlNodeList brwlrTmp = xmlBrawler[i].ChildNodes;
                 foreach (XmlNode brwlrItem in brwlrTmp)
@@ -180,28 +181,28 @@ namespace BakuganGame
                         for (uint k = 0; k < NbrBaku; k++)
                             brawler[i].gateCard[k].define(brawler[i].teamID, (uint)i, k);
                         
-                        Console.WriteLine("TeamID " + brawler[i].teamID);
+                        Console.WriteLine("\tTeamID " + brawler[i].teamID);
                     }
                     if (brwlrItem.Name == "Name")
                     {
                         
                         brawler[i].name = brwlrItem.InnerText;
-                        Console.WriteLine("Name " + brawler[i].name);
+                        Console.WriteLine("\tName " + brawler[i].name);
                     }
                     if (brwlrItem.Name == "BID")
                     {
                         brawler[i].BID = Convert.ToUInt64(brwlrItem.InnerText, 16);
-                        Console.WriteLine("BID " + brawler[i].BID);
+                        Console.WriteLine("\tBID " + brawler[i].BID);
                     }
                     if (brwlrItem.Name == "Rank")
                     {
                         brawler[i].rank = ulong.Parse(brwlrItem.InnerText);
-                        Console.WriteLine("Rank " + brawler[i].rank);
+                        Console.WriteLine("\tRank " + brawler[i].rank);
                     }
                     if (brwlrItem.Name == "Money")
                     {
                         brawler[i].money = double.Parse(brwlrItem.InnerText);
-                        Console.WriteLine("Money " + brawler[i].money);
+                        Console.WriteLine("\tMoney " + brawler[i].money);
                     }
                     if (brwlrItem.Name == "DoomCard")
                     {
@@ -209,21 +210,21 @@ namespace BakuganGame
                             brawler[i].avDoom = true;
                         if (brwlrItem.InnerText == "No")
                             brawler[i].avDoom = false;
-                        Console.WriteLine("DoomCard" + brawler[i].avDoom);
+                        Console.WriteLine("\tDoomCard: " + brawler[i].avDoom);
                     }
 
                     
                     if (brwlrItem.Name == "Bakugan")
                     {
                         brawler[i].bakugan[j].state = 0;
-                        Console.WriteLine(j);
+                        Console.WriteLine("\tBakugan No"+j);
                         XmlNodeList xmlBakugan = brwlrItem.ChildNodes;
                         foreach (XmlNode bakuItem in xmlBakugan)
                         {
                             if (bakuItem.Name == "Name")
                             {
                                 brawler[i].bakugan[j].name = bakuItem.InnerText;// +xmlBakugan[j].InnerText;
-                                Console.WriteLine("Name " + brawler[i].bakugan[j].name);
+                                Console.WriteLine("\t\tName " + brawler[i].bakugan[j].name);
                             }
                                 
                             if (bakuItem.Name == "GPower")
@@ -231,7 +232,7 @@ namespace BakuganGame
                                 brawler[i].bakugan[j].g = int.Parse(bakuItem.InnerText);
                                 brawler[i].bakugan[j].gGame = int.Parse(bakuItem.InnerText);
                                 brawler[i].bakugan[j].gGlobal = int.Parse(bakuItem.InnerText);
-                                Console.WriteLine("GPower " + brawler[i].bakugan[j].g);
+                                Console.WriteLine("\t\tGPower " + brawler[i].bakugan[j].g);
                             }
                             if (bakuItem.Name == "Attribute")
                             {
@@ -263,25 +264,27 @@ namespace BakuganGame
                     }
                     if (brwlrItem.Name == "AbilityCard")
                     {
+                        Console.WriteLine("\tAbility Card");
                         XmlNodeList xmlAbiCard = brwlrItem.ChildNodes;
                         for (int k = 0; k < xmlAbiCard.Count; k++)
                         {
                             if (xmlAbiCard[k].Name == "AbilityID")
                             {
                                 brawler[i].abilityCard[k].abilityType = uint.Parse(xmlAbiCard[k].InnerText);
-                                Console.WriteLine("AbilityID " + brawler[i].abilityCard[k].abilityType);
+                                Console.WriteLine("\t\tAbilityID " + brawler[i].abilityCard[k].abilityType);
                             }
                         }
                     }
                     if (brwlrItem.Name == "GateCard")
                     {
+                        Console.WriteLine("\tGate Card");
                         XmlNodeList xmlGtCard = brwlrItem.ChildNodes;
                         for (int k = 0; k < xmlGtCard.Count; k++)
                         {
                             if (xmlGtCard[k].Name == "GateID")
                             {
                                 brawler[i].gateCard[k].gateType = uint.Parse(xmlGtCard[k].InnerText);
-                                Console.WriteLine("GateID " + brawler[i].gateCard[k].gateType);
+                                Console.WriteLine("\t\tGateID " + brawler[i].gateCard[k].gateType);
                             }
                         }
                     }
@@ -535,9 +538,9 @@ namespace BakuganGame
                 {
                     if (subMenu.Name.Substring(0, 7) == "Bakugan")
                     {
-                        if(currUsedBaku <= MaxBakuTurn)
-                            brawler[currBrawler].ForceThrowBakugan((int)currGateX, (int)currGateY, tempChoice);
-                        currUsedBaku++;
+                        if(currUsedBaku < MaxBakuTurn)
+                            if(brawler[currBrawler].ForceThrowBakugan((int)currGateX, (int)currGateY, tempChoice))
+                                currUsedBaku++;
                     }
                         
                     
@@ -550,9 +553,9 @@ namespace BakuganGame
                 if (subMenu.Name.Length >= 4)
                     if (subMenu.Name.Substring(0, 4) == "Gate")
                     {
-                        if(currUsedGate <= MaxGateTurn)
-                            brawler[currBrawler].setGate((int)currGateX, (int)currGateY, (uint)tempChoice);
-                        currUsedGate++;
+                        if(currUsedGate < MaxGateTurn)
+                            if(brawler[currBrawler].setGate((int)currGateX, (int)currGateY, (uint)tempChoice))
+                                currUsedGate++;
                     }
                 prevSelectMenu.Push(tempChoice);
 
@@ -817,25 +820,25 @@ namespace BakuganGame
                         isBakuganLabel = true;
                         if (index == selectMenu)
                         {
-                            printText(ConsoleColor.Black, ConsoleColor.White, 40, index + 3, brawler[currBrawler].bakugan[index].name);
+                            printText(ConsoleColor.Black, ConsoleColor.White, 40, index + 3, brawler[currBrawler].bakugan[index].name + " " + brawler[currBrawler].bakugan[index].g + "G");
                         }
                         else if (brawler[currBrawler].bakugan[index].state == BakuState.InInventory)
                         {
-                            printBakuName((int)currBrawler, index, 40, index + 3, brawler[currBrawler].bakugan[index].name);
+                            printBakuName((int)currBrawler, index, 40, index + 3, brawler[currBrawler].bakugan[index].name + " " + brawler[currBrawler].bakugan[index].g + "G");
                         }
                         else if (brawler[currBrawler].bakugan[index].state == BakuState.OnGate)
                         {
-                            printBakuName((int)currBrawler, index, 40, index + 3, $"({brawler[currBrawler].bakugan[index].x},{brawler[currBrawler].bakugan[index].y})" + brawler[currBrawler].bakugan[index].name);
+                            printBakuName((int)currBrawler, index, 40, index + 3, $"({brawler[currBrawler].bakugan[index].x},{brawler[currBrawler].bakugan[index].y}): " + brawler[currBrawler].bakugan[index].name);
                         }
                         else if (brawler[currBrawler].bakugan[index].state == BakuState.KnockedOut)
                         {
-                            Console.BackgroundColor = ConsoleColor.DarkRed;
-                            printBakuName((int)currBrawler, index, 40, index + 3, brawler[currBrawler].bakugan[index].name);
-                            Console.BackgroundColor = ConsoleColor.White;
+                            //Console.BackgroundColor = ConsoleColor.DarkRed;
+                            printBakuName((int)currBrawler, index, 40, index + 3, "KO: "+ brawler[currBrawler].bakugan[index].name);
+                            //Console.BackgroundColor = ConsoleColor.White;
                         }
                         else if (brawler[currBrawler].bakugan[index].state == BakuState.Killed)
                         {
-                            printText(ConsoleColor.Black, ConsoleColor.White, 40, index + 3, "KILLED");
+                            printText(ConsoleColor.Black, ConsoleColor.White, 40, index + 3, "KILLED: " + brawler[currBrawler].bakugan[index].name);
                         }
                     }
                     if (subMenu.Children[index].Name.Substring(0, 7) == "Ability")

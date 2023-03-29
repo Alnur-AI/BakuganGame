@@ -114,7 +114,7 @@ namespace BakuganGame
                 int winCont = 0;
                 for (int i = 0; i < field.NbrTeam; i++)
                 {
-                    if (teamKilledCount[i] != teamBrawCount[i])
+                    if (teamKilledCount[i] != field.NbrBaku*teamBrawCount[i])
                     {
                         winTeam = i;
                     }
@@ -158,10 +158,18 @@ namespace BakuganGame
 
                 field.drawBattleLink();
 
+                /*
                 Console.SetCursorPosition(0,23);
-
                 for (int i = 0; i < field.NbrTeam; i++)
                     Console.Write($"{teamKilledCount[i]} ");
+
+                Console.SetCursorPosition(0, 24);
+                for (int i = 0; i < field.NbrTeam; i++)
+                    Console.Write($"{teamBrawCount[i]*field.NbrBaku} ");
+
+                Console.SetCursorPosition(0, 25);
+                    Console.Write($"Curr Gate lim: {field.currUsedGate}  Curr Baku lim: {field.currUsedBaku}");
+                */
             }
             
         }
