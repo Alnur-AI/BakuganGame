@@ -12,4 +12,4 @@ The goal of the game is to defeat the opposing team. The team with surviving Bak
 
 
 ## Screenshots
-![Result](./Demo.png "Results")
+![Result](./Demo.jpg "Results")
