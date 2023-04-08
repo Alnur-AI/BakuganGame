@@ -14,10 +14,14 @@ using System.Xml.Linq;
 
 namespace BakuganGame
 {
+    /*
+        This class is a menu structure in the game, 
+    with the help of which it is possible to make a choice of player actions.
+    */
     public class Menu
     {
-        public string Name { get; set; }
         public int Id { get; set; }
+        public string Name { get; set; }
         public Menu Parent { get; set; }
         public List<Menu> Children { get; set; }
 
@@ -36,276 +40,107 @@ namespace BakuganGame
         }
     }
     /*
-        Данный класс определяет поле, которое содержит в себе 
-        Фиксированное количество ворот на время игры
-        Менять количество ворот на поле запрещено 
+        This class defines a field that contains
+        Fixed number of goals per game
+        It is forbidden to change the number of goals on the field
 
-        Так же поле содержит в себе информацию по бакуганам, их картам ворот и способностей    
+        The field also contains information on Bakugan, their gate cards and abilities.
     */
     internal class Field
     {
-
+        // Basic constants that allow you to set the rules of the entire game
         public uint NbrBaku { get; private set; }
         public uint NbrTeam { get; private set; }
         public uint NbrBraw { get; private set; }
 
-        // добавить константы ограничения бакуганов за один ход
+
+        // Add bakugan limit constants in one turn
         public uint MaxGateTurn { get; private set; }
         public uint MaxBakuTurn { get; private set; }
         public uint MaxAbilTurn { get; private set; }
 
-        public uint currGateX { get; private set; }//Осмотр ворот по Ох
-        public uint currGateY { get; private set; }//Осмотр ворот по Оу
 
+        // Current cursor position in space (for gate selection)
+        public uint currGateX { get; private set; }//Inspection of the gate by Ox
+        public uint currGateY { get; private set; }//Inspection of the gate on Oy
+
+
+        // Brawlers and gates. The main objects of the whole game
         public Brawler[] brawler;
         public Gate[,] gate;
 
-        string appLog;// логирование процессов и ошибок всего приложения (Console Information)
-        string battleLog;// логирование процессов битвы во время выполнения приложения (Console Information)
 
-        int currBrawlerIndex = 0;
-        public uint currBrawler{ get; private set; }//Текущий игрок по списку взял управление
+        // Process logging
+        string appLog;// logging of processes and errors of the entire application (Console Information)
+        string battleLog;// logging battle processes during application execution (Console Information)
+
+
+        // Parameters of the current fighter
+        int currBrawlerIndex = 0;// current BrawlerID in queueGame
+        public uint currBrawler{ get; private set; }// The current player on the list has taken control
         public int currUsedBaku { get; private set; }
         public int currUsedGate { get; private set; }
         public int currUsedAbil { get; private set; }
+        
+        int currAbility; // Selecting an ability card from the list that we want to remove
+        int currBakugan; // We chose the Bakugan on which we want to perform an action in the ability
 
-        public List<Tuple<uint, uint>> queueGame { get; private set; } //Список игроков и их принадлежность к команде
 
-        public Menu menu { get; set; }
-        public Menu subMenu { get; set; }
-        public int selectMenu { get; set; }
-        public Stack <int> prevSelectMenu { get; set; }
+        // A queue of players implemented through a list
+        public List<Tuple<uint, uint>> queueGame { get; private set; } // List of players and their affiliation to the team
 
-        public List<List<Bakugan>> battleLink { get; set; }// Список бакуганов учавствующих в различных активных битвах. Заметим, что первый элемент каждого списка это инициатор боя
 
+        // Selection menu
+        public Menu menu { get; set; }// Link to root menu
+        public Menu subMenu { get; set; }// currently displayed menu
+        public int selectMenu { get; set; }//selected option in the menu
+        public Stack <int> prevSelectMenu { get; set; }// stack of previous clicks
+
+
+        // List of Bakugan participating in various active battles.
+        // Note that the first element of each list is the combat initiator.
+        public List<List<Bakugan>> battleLink { get; set; }
+
+
+        // List of cards activated on the battlefield
+        // IN PROGRESS
+        //public List<AbilityCard> activatedAbilities { get; set; }
+
+
+        /// <summary>
+        /// Constructor of Field with battle.xml
+        /// </summary>
+        /// <returns> Returns true - if it was possible to execute and parse xml </returns>
         public Field()
         {
             currGateX = 0;
             currGateY = 0;
 
-            
-            
 
             battleLink = new List<List<Bakugan>>();
 
-            setAppLog($"Connecting battle.xml");
-            bool xmlFileFound = false;
-            XmlDocument xmlDoc = new XmlDocument();
-            while (!xmlFileFound)
-            {
-                try
-                {
-                    if (File.Exists("battle.xml"))
-                    {
-                        xmlDoc.Load("battle.xml");
+            DefineBattleFromXml();
 
-                        setAppLog($"Connecting constants.xml");
-                        XmlNodeList constants = xmlDoc.GetElementsByTagName("Constants");
-                        foreach (XmlNode cnst in constants)
-                        {
-                            XmlNodeList cnstTmp = cnst.ChildNodes;
-                            foreach (XmlNode cnstItem in cnstTmp)
-                            {
-                                if (cnstItem.Name == "NbrBaku")
-                                    NbrBaku = uint.Parse(cnstItem.InnerText);
-                                if (cnstItem.Name == "NbrTeam")
-                                    NbrTeam = uint.Parse(cnstItem.InnerText);
-                                if (cnstItem.Name == "NbrBraw")
-                                    NbrBraw = uint.Parse(cnstItem.InnerText);
-                                if (cnstItem.Name == "MaxAbilTurn")
-                                    MaxAbilTurn = uint.Parse(cnstItem.InnerText);
-                                if (cnstItem.Name == "MaxBakuTurn")
-                                    MaxBakuTurn = uint.Parse(cnstItem.InnerText);
-                                if (cnstItem.Name == "MaxGateTurn")
-                                    MaxGateTurn = uint.Parse(cnstItem.InnerText);
-                            }
-                        }
-
-                        xmlFileFound = true;
-                    }
-                    else
-                    {
-                        setAppLog($"ERROR: File battle.xml does not exists in root directory.");
-                        Console.WriteLine("ERROR: File battle.xml does not exists in root directory.");
-                    }
-
-                }
-                catch (Exception ex)
-                {
-                    // Handle any exceptions that occur during parsing
-                    Console.WriteLine("Error parsing XML file: " + ex.Message);
-                }
-                Thread.Sleep(1000);
-            }
-
-            setAppLog($"Number of Bakugan {NbrBaku}");
-            setAppLog($"Number of Team {NbrTeam}");
-            setAppLog($"Number of Brawler {NbrBraw}\n\n");
-
-
-            setAppLog($"Initializing field");
-
-            brawler = new Brawler[NbrBraw];
-            for (uint i = 0; i < NbrBraw; i++)
-            {
-                brawler[i] = new Brawler(NbrBaku, NbrTeam, NbrBraw, i,this);
-                setAppLog($"Field message: Allocate memory to Brawler {i}");
-            }
-
-            gate = new Gate[NbrBraw, NbrBaku];
-            for (int i = 0; i < NbrBraw; i++)
-                for (int j = 0; j < NbrBaku; j++)
-                {
-                    gate[i, j] = new Gate(NbrBaku, NbrTeam, NbrBraw, i, j,this);
-                    setAppLog($"Field message: Allocate memory to Gate ({i}, {j})");
-                }
-            setAppLog($"Connecting brawlers from battle.xml");
-            XmlNodeList xmlBrawler = xmlDoc.GetElementsByTagName("Brawler");
-            for (int i = 0; i < xmlBrawler.Count; i++)
-            {
-                Console.WriteLine("Brawler No" + i);
-                int j = 0;//количество бакуганов в парсинге
-                XmlNodeList brwlrTmp = xmlBrawler[i].ChildNodes;
-                foreach (XmlNode brwlrItem in brwlrTmp)
-                {
-                    if (brwlrItem.Name == "TeamID")
-                    {
-                        brawler[i].teamID = uint.Parse(brwlrItem.InnerText);
-
-                        for (uint k = 0; k < NbrBaku; k++)
-                            brawler[i].bakugan[k].define(brawler[i].teamID, (uint)i, k);
-                        
-                        for (uint k = 0; k < 3 * NbrBaku; k++)
-                            brawler[i].abilityCard[k].define(brawler[i].teamID, (uint)i, k);
-                        
-                        for (uint k = 0; k < NbrBaku; k++)
-                            brawler[i].gateCard[k].define(brawler[i].teamID, (uint)i, k);
-                        
-                        Console.WriteLine("\tTeamID " + brawler[i].teamID);
-                    }
-                    if (brwlrItem.Name == "Name")
-                    {
-                        
-                        brawler[i].name = brwlrItem.InnerText;
-                        Console.WriteLine("\tName " + brawler[i].name);
-                    }
-                    if (brwlrItem.Name == "BID")
-                    {
-                        brawler[i].BID = Convert.ToUInt64(brwlrItem.InnerText, 16);
-                        Console.WriteLine("\tBID " + brawler[i].BID);
-                    }
-                    if (brwlrItem.Name == "Rank")
-                    {
-                        brawler[i].rank = ulong.Parse(brwlrItem.InnerText);
-                        Console.WriteLine("\tRank " + brawler[i].rank);
-                    }
-                    if (brwlrItem.Name == "Money")
-                    {
-                        brawler[i].money = double.Parse(brwlrItem.InnerText);
-                        Console.WriteLine("\tMoney " + brawler[i].money);
-                    }
-                    if (brwlrItem.Name == "DoomCard")
-                    {
-                        if (brwlrItem.InnerText == "Yes")
-                            brawler[i].avDoom = true;
-                        if (brwlrItem.InnerText == "No")
-                            brawler[i].avDoom = false;
-                        Console.WriteLine("\tDoomCard: " + brawler[i].avDoom);
-                    }
-
-                    
-                    if (brwlrItem.Name == "Bakugan")
-                    {
-                        brawler[i].bakugan[j].state = 0;
-                        Console.WriteLine("\tBakugan No"+j);
-                        XmlNodeList xmlBakugan = brwlrItem.ChildNodes;
-                        foreach (XmlNode bakuItem in xmlBakugan)
-                        {
-                            if (bakuItem.Name == "Name")
-                            {
-                                brawler[i].bakugan[j].name = bakuItem.InnerText;// +xmlBakugan[j].InnerText;
-                                Console.WriteLine("\t\tName " + brawler[i].bakugan[j].name);
-                            }
-                                
-                            if (bakuItem.Name == "GPower")
-                            {
-                                brawler[i].bakugan[j].g = int.Parse(bakuItem.InnerText);
-                                brawler[i].bakugan[j].gGame = int.Parse(bakuItem.InnerText);
-                                brawler[i].bakugan[j].gGlobal = int.Parse(bakuItem.InnerText);
-                                Console.WriteLine("\t\tGPower " + brawler[i].bakugan[j].g);
-                            }
-                            if (bakuItem.Name == "Attribute")
-                            {
-                                switch (bakuItem.InnerText)
-                                {
-                                    case "Pyrus":
-                                        brawler[i].bakugan[j].isPyrus = true;
-                                        break;
-                                    case "Aquos":
-                                        brawler[i].bakugan[j].isAquos = true;
-                                        break;
-                                    case "Darkus":
-                                        brawler[i].bakugan[j].isDarkus = true;
-                                        break;
-                                    case "Ventus":
-                                        brawler[i].bakugan[j].isVentus = true;
-                                        break;
-                                    case "Subterra":
-                                        brawler[i].bakugan[j].isSubterra = true;
-                                        break;
-                                    case "Haos":
-                                        brawler[i].bakugan[j].isHaos = true;
-                                        break;
-                                }
-                            }
-                            
-                        }
-                        j++;
-                    }
-                    if (brwlrItem.Name == "AbilityCard")
-                    {
-                        Console.WriteLine("\tAbility Card");
-                        XmlNodeList xmlAbiCard = brwlrItem.ChildNodes;
-                        for (int k = 0; k < xmlAbiCard.Count; k++)
-                        {
-                            if (xmlAbiCard[k].Name == "AbilityID")
-                            {
-                                brawler[i].abilityCard[k].abilityType = uint.Parse(xmlAbiCard[k].InnerText);
-                                Console.WriteLine("\t\tAbilityID " + brawler[i].abilityCard[k].abilityType);
-                            }
-                        }
-                    }
-                    if (brwlrItem.Name == "GateCard")
-                    {
-                        Console.WriteLine("\tGate Card");
-                        XmlNodeList xmlGtCard = brwlrItem.ChildNodes;
-                        for (int k = 0; k < xmlGtCard.Count; k++)
-                        {
-                            if (xmlGtCard[k].Name == "GateID")
-                            {
-                                brawler[i].gateCard[k].gateType = uint.Parse(xmlGtCard[k].InnerText);
-                                Console.WriteLine("\t\tGateID " + brawler[i].gateCard[k].gateType);
-                            }
-                        }
-                    }
-                }
-            }
+            
             prevSelectMenu = new Stack<int>();
             defineMenu();
             setAppLog($"Field initialized\n\n");
         }
 
+
+        /// <summary>
+        /// Defines the content of the choice menu
+        /// </summary>
         public void defineMenu()
         {
             int count = 1;
 
             menu = new Menu("Choice Action", 0);
 
-            Menu grandpa;
+
             Menu parent = new Menu("Set Gate Card", count++, menu);
             menu.Children.Add(parent);
 
-            
             for (int i = 0; i < NbrBaku; i++)
             {
                 parent = new Menu("Gate " + (i + 1), count++, parent);
@@ -368,36 +203,287 @@ namespace BakuganGame
         }
 
 
+        /// <summary>
+        /// Parsing Menu from XML
+        /// </summary>
+        public void DefineMenuFromXml(string fileName)
+        {
+            // Load the XML document from the file
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.Load(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, fileName));
+
+            // Get the root element
+            XmlElement root = xmlDoc.DocumentElement;
+
+            // Create a new menu
+            int count = 1;
+            menu = new Menu(root.GetAttribute("name"), 0);
+
+            // Process each parent element
+            foreach (XmlNode parentNode in root.ChildNodes)
+            {
+                if (parentNode.Name == "parent")
+                {
+                    // Create a new parent menu
+                    Menu parentMenu = new Menu(parentNode.Attributes["name"].Value, count++, menu);
+                    menu.Children.Add(parentMenu);
+
+                    // Process each child element
+                    foreach (XmlNode childNode in parentNode.ChildNodes)
+                    {
+                        if (childNode.Name == "child")
+                        {
+                            // Create a new child menu
+                            Menu childMenu = new Menu(childNode.Attributes["name"].Value, count++, parentMenu);
+                            parentMenu.Children.Add(childMenu);
+                        }
+                    }
+                }
+            }
+
+            subMenu = menu;
+        }
+
 
         /// <summary>
-        /// Записываем строку str в AppLog
+        /// Parsing Battle Settings from XML
         /// </summary>
-        /// <returns>Возвращает true - если удалось заполнить </returns>
+        public void DefineBattleFromXml()
+        {
+            setAppLog($"Connecting battle.xml");
+            bool xmlFileFound = false;
+            XmlDocument xmlDoc = new XmlDocument();
+            while (!xmlFileFound)
+            {
+                try
+                {
+                    if (File.Exists("battle.xml"))
+                    {
+                        xmlDoc.Load("battle.xml");
+
+                        setAppLog($"Connecting constants.xml");
+                        XmlNodeList constants = xmlDoc.GetElementsByTagName("Constants");
+                        foreach (XmlNode cnst in constants)
+                        {
+                            XmlNodeList cnstTmp = cnst.ChildNodes;
+                            foreach (XmlNode cnstItem in cnstTmp)
+                            {
+                                if (cnstItem.Name == "NbrBaku")
+                                    NbrBaku = uint.Parse(cnstItem.InnerText);
+                                if (cnstItem.Name == "NbrTeam")
+                                    NbrTeam = uint.Parse(cnstItem.InnerText);
+                                if (cnstItem.Name == "NbrBraw")
+                                    NbrBraw = uint.Parse(cnstItem.InnerText);
+                                if (cnstItem.Name == "MaxAbilTurn")
+                                    MaxAbilTurn = uint.Parse(cnstItem.InnerText);
+                                if (cnstItem.Name == "MaxBakuTurn")
+                                    MaxBakuTurn = uint.Parse(cnstItem.InnerText);
+                                if (cnstItem.Name == "MaxGateTurn")
+                                    MaxGateTurn = uint.Parse(cnstItem.InnerText);
+                            }
+                        }
+
+                        xmlFileFound = true;
+                    }
+                    else
+                    {
+                        setAppLog($"ERROR: File battle.xml does not exists in root directory.");
+                        setAppLog("ERROR: File battle.xml does not exists in root directory.");
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    // Handle any exceptions that occur during parsing
+                    setAppLog("Error parsing XML file: " + ex.Message);
+                }
+                Thread.Sleep(1000);
+            }
+            setAppLog($"Number of Bakugan {NbrBaku}");
+            setAppLog($"Number of Team {NbrTeam}");
+            setAppLog($"Number of Brawler {NbrBraw}\n\n");
+
+
+            setAppLog($"Initializing field");
+
+            brawler = new Brawler[NbrBraw];
+            for (uint i = 0; i < NbrBraw; i++)
+            {
+                brawler[i] = new Brawler(i, this);
+                setAppLog($"Field message: Allocate memory to Brawler {i}");
+            }
+
+            gate = new Gate[NbrBraw, NbrBaku];
+            for (int i = 0; i < NbrBraw; i++)
+                for (int j = 0; j < NbrBaku; j++)
+                {
+                    gate[i, j] = new Gate(NbrBaku, NbrTeam, NbrBraw, i, j, this);
+                    setAppLog($"Field message: Allocate memory to Gate ({i}, {j})");
+                }
+            setAppLog($"Connecting brawlers from battle.xml");
+            XmlNodeList xmlBrawler = xmlDoc.GetElementsByTagName("Brawler");
+            for (int i = 0; i < xmlBrawler.Count; i++)
+            {
+                Console.WriteLine("Brawler No" + i);
+                int j = 0;//number of bakugan in parsing
+                XmlNodeList brwlrTmp = xmlBrawler[i].ChildNodes;
+                foreach (XmlNode brwlrItem in brwlrTmp)
+                {
+                    if (brwlrItem.Name == "TeamID")
+                    {
+                        brawler[i].teamID = uint.Parse(brwlrItem.InnerText);
+
+                        for (uint k = 0; k < NbrBaku; k++)
+                            brawler[i].bakugan[k].define(brawler[i].teamID, (uint)i, k);
+
+                        for (uint k = 0; k < 3 * NbrBaku; k++)
+                            brawler[i].abilityCard[k].define(brawler[i].teamID, (uint)i, k);
+
+                        for (uint k = 0; k < NbrBaku; k++)
+                            brawler[i].gateCard[k].define(brawler[i].teamID, (uint)i, k);
+
+                        Console.WriteLine("\tTeamID " + brawler[i].teamID);
+                    }
+                    if (brwlrItem.Name == "Name")
+                    {
+
+                        brawler[i].name = brwlrItem.InnerText;
+                        Console.WriteLine("\tName " + brawler[i].name);
+                    }
+                    if (brwlrItem.Name == "BID")
+                    {
+                        brawler[i].BID = Convert.ToUInt64(brwlrItem.InnerText, 16);
+                        Console.WriteLine("\tBID " + brawler[i].BID);
+                    }
+                    if (brwlrItem.Name == "Rank")
+                    {
+                        brawler[i].rank = ulong.Parse(brwlrItem.InnerText);
+                        Console.WriteLine("\tRank " + brawler[i].rank);
+                    }
+                    if (brwlrItem.Name == "Money")
+                    {
+                        brawler[i].money = double.Parse(brwlrItem.InnerText);
+                        Console.WriteLine("\tMoney " + brawler[i].money);
+                    }
+                    if (brwlrItem.Name == "DoomCard")
+                    {
+                        if (brwlrItem.InnerText == "Yes")
+                            brawler[i].avDoom = true;
+                        if (brwlrItem.InnerText == "No")
+                            brawler[i].avDoom = false;
+                        Console.WriteLine("\tDoomCard: " + brawler[i].avDoom);
+                    }
+
+
+                    if (brwlrItem.Name == "Bakugan")
+                    {
+                        brawler[i].bakugan[j].state = 0;
+                        Console.WriteLine("\tBakugan No" + j);
+                        XmlNodeList xmlBakugan = brwlrItem.ChildNodes;
+                        foreach (XmlNode bakuItem in xmlBakugan)
+                        {
+                            if (bakuItem.Name == "Name")
+                            {
+                                brawler[i].bakugan[j].name = bakuItem.InnerText;// +xmlBakugan[j].InnerText;
+                                Console.WriteLine("\t\tName " + brawler[i].bakugan[j].name);
+                            }
+
+                            if (bakuItem.Name == "GPower")
+                            {
+                                brawler[i].bakugan[j].g = int.Parse(bakuItem.InnerText);
+                                brawler[i].bakugan[j].gGame = int.Parse(bakuItem.InnerText);
+                                brawler[i].bakugan[j].gGlobal = int.Parse(bakuItem.InnerText);
+                                Console.WriteLine("\t\tGPower " + brawler[i].bakugan[j].g);
+                            }
+                            if (bakuItem.Name == "Attribute")
+                            {
+                                switch (bakuItem.InnerText)
+                                {
+                                    case "Pyrus":
+                                        brawler[i].bakugan[j].isPyrus = true;
+                                        break;
+                                    case "Aquos":
+                                        brawler[i].bakugan[j].isAquos = true;
+                                        break;
+                                    case "Darkus":
+                                        brawler[i].bakugan[j].isDarkus = true;
+                                        break;
+                                    case "Ventus":
+                                        brawler[i].bakugan[j].isVentus = true;
+                                        break;
+                                    case "Subterra":
+                                        brawler[i].bakugan[j].isSubterra = true;
+                                        break;
+                                    case "Haos":
+                                        brawler[i].bakugan[j].isHaos = true;
+                                        break;
+                                }
+                            }
+
+                        }
+                        j++;
+                    }
+                    if (brwlrItem.Name == "AbilityCard")
+                    {
+                        Console.WriteLine("\tAbility Card");
+                        XmlNodeList xmlAbiCard = brwlrItem.ChildNodes;
+                        for (int k = 0; k < xmlAbiCard.Count; k++)
+                        {
+                            if (xmlAbiCard[k].Name == "AbilityID")
+                            {
+                                brawler[i].abilityCard[k].abilityType = uint.Parse(xmlAbiCard[k].InnerText);
+                                Console.WriteLine("\t\tAbilityID " + brawler[i].abilityCard[k].abilityType);
+                            }
+                        }
+                    }
+                    if (brwlrItem.Name == "GateCard")
+                    {
+                        Console.WriteLine("\tGate Card");
+                        XmlNodeList xmlGtCard = brwlrItem.ChildNodes;
+                        for (int k = 0; k < xmlGtCard.Count; k++)
+                        {
+                            if (xmlGtCard[k].Name == "GateID")
+                            {
+                                brawler[i].gateCard[k].gateType = uint.Parse(xmlGtCard[k].InnerText);
+                                Console.WriteLine("\t\tGateID " + brawler[i].gateCard[k].gateType);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Write str string to AppLog
+        /// </summary>
+        /// <returns>Returns true - if it was possible to fill </returns>
         public bool setAppLog(string str)
         {
             appLog = appLog + str + '\n';
             return true;
         }
 
+
         /// <summary>
-        /// Записываем строку str в BatteLog
+        /// Write the string str to BatteLog
         /// </summary>
-        /// <returns>Возвращает true - если удалось заполнить </returns>
+        /// <returns>Returns true - if it was possible to fill </returns>
         public bool setBattleLog(string str)
         {
             battleLog = battleLog + str + '\n';
             return true;
         }
-        
+
+
         /// <summary>
-        /// Записываем строку appLog в файл
+        /// Write the appLog string to a file
         /// </summary>
-        /// <returns>Возвращает true - если удалось заполнить </returns>
+        /// <returns>Returns true - if it was possible to print </returns>
         public bool printAppLog()
         {
             try
             {
-                //string path = @"C:\Users\Hikari\Desktop\bakugan\newproject\BakuganGame\BakuganGame\AppLog.txt";
                 string path = "Applog.txt";
                 StreamWriter sw = new StreamWriter(path);
 
@@ -412,6 +498,11 @@ namespace BakuganGame
             return true;
         }
 
+
+        /// <summary>
+        /// Handling the control of the pointer to the field
+        /// </summary>
+        /// <returns>Returns true - if it was possible to handling </returns>
         public bool controlField(ConsoleKeyInfo key)
         {
             if (key.Key == ConsoleKey.A)
@@ -445,6 +536,12 @@ namespace BakuganGame
             }
             return true;
         }
+
+
+        /// <summary>
+        /// Handling the control of the pointer on menu
+        /// </summary>
+        /// <returns>Returns true - if it was possible to handling </returns>
         public bool controlInGame(ConsoleKeyInfo key)
         {
 
@@ -484,6 +581,7 @@ namespace BakuganGame
                         }
                         else
                         {
+                            // Basic logic of brawler interaction
                             selectControlLogic();
                         }
                     }
@@ -492,9 +590,15 @@ namespace BakuganGame
             }
             return true;
         }
+
+
+        /// <summary>
+        /// The logic of processing the selected category in the menu
+        /// </summary>
+        /// <returns>Returns true - if it was possible to handling </returns>
         public void selectControlLogic()
         {
-            // Если выбран вариант yes или no
+            // If yes or no is selected
             if (subMenu.Children[selectMenu].Name == "No")
             {
                 subMenu = subMenu.Parent;
@@ -532,7 +636,7 @@ namespace BakuganGame
                 }
 
 
-                // Облатсь выбора бакуганов карт ворот и способностей
+                //Get a selection of Bakugan gate cards and abilities
                 int tempChoice = prevSelectMenu.Pop();
                 if (subMenu.Name.Length >= 7)
                 {
@@ -546,7 +650,7 @@ namespace BakuganGame
                     
                     if (subMenu.Name.Substring(0, 7) == "Ability")
                     {
-                        // Код появится когда доработается алгоритмы способностей
+                        // The code will appear when the ability algorithms are finalized
                         currUsedAbil++;
                     }
                 }              
@@ -564,6 +668,8 @@ namespace BakuganGame
             }
             
         }
+
+
 
         public void printBakuName(int brawlerID, int bakuganID, int x, int y, string str)
         {
@@ -746,6 +852,8 @@ namespace BakuganGame
             Console.BackgroundColor = oldBgr;
         }
         
+
+
         public bool drawField()
         {
             // Field
@@ -844,7 +952,23 @@ namespace BakuganGame
                     if (subMenu.Children[index].Name.Substring(0, 7) == "Ability")
                     {
                         isAbilityLabel = true;
-                        
+
+                        if (currUsedGate >= MaxGateTurn)
+                        {
+                            printText(ConsoleColor.Red, 40, index + 3, "UNAVAILABLE");
+                        }
+                        else if (index == selectMenu)
+                        {
+                            printText(ConsoleColor.Black, ConsoleColor.White, 40, index + 3, subMenu.Children[index].Name);
+                        }
+                        else if (brawler[currBrawler].gateCard[index].isPlaced)
+                        {
+                            printText(ConsoleColor.Red, 40, index + 3, subMenu.Children[index].Name);
+                        }
+                        else
+                        {
+                            printText(ConsoleColor.White, 40, index + 3, subMenu.Children[index].Name);
+                        }
                     }
                 }
                 if (subMenu.Children[index].Name.Length >= 4)
@@ -871,12 +995,12 @@ namespace BakuganGame
                     }
                 }
                 
-                if (!isBakuganLabel && !isGateCardLabel && !isDoomCard)
+                if (!isBakuganLabel && !isGateCardLabel && !isAbilityLabel && !isDoomCard)
                 {
                     printText(ConsoleColor.White, ConsoleColor.Black, 40, index + 3, subMenu.Children[index].Name);
                    
                 }
-                if (index == selectMenu && (!isBakuganLabel && !isGateCardLabel && !isDoomCard))
+                if (index == selectMenu && (!isBakuganLabel && !isGateCardLabel && !isAbilityLabel && !isDoomCard))
                 {
                     printText(ConsoleColor.Black, ConsoleColor.White, 40, index + 3, subMenu.Children[index].Name);
                 }
@@ -1046,6 +1170,8 @@ namespace BakuganGame
             return true;
         }
 
+
+
         public void nextPlayer()
         {
             currUsedAbil = 0;
@@ -1101,13 +1227,11 @@ namespace BakuganGame
                     currTeam = minTeam;
                 
             }
+
             tempLst = queueGame.GetRange(0, queueGame.Count);
             for (int i = 0; i < NbrBraw; i++)
-            {
                 brawler[i].queueID = tempLst[i].Item1;
-                //Console.WriteLine(brawler[i].queueID);
-            }
-            //queueGame.ForEach(Console.WriteLine);
+            
         }
 
 
@@ -1120,12 +1244,13 @@ namespace BakuganGame
                     continue;
                 if (innerList[0].owner == field.currBrawler)
                 {
-                    // Создаем словарь для хранения сумм g для каждой команды
+                    // Create a dictionary to store g sums for each command
                     Dictionary<uint, int> teamG = new Dictionary<uint, int>();
 
+                    
                     foreach (Bakugan bakugan in innerList)
                     {
-                        // Подсчет суммы g для каждой команды
+                        // Calculating the sum g for each team
                         if (teamG.ContainsKey(bakugan.team))
                         {
                             teamG[bakugan.team] += bakugan.g;
@@ -1139,7 +1264,7 @@ namespace BakuganGame
                     int maxG = 0;
                     List<uint> winnerTeams = new List<uint>();
 
-                    // Поиск команды с наибольшей суммой g
+                    // Finding the team with the highest g sum
                     foreach (KeyValuePair<uint, int> team in teamG)
                     {
                         if (team.Value > maxG)
@@ -1154,11 +1279,23 @@ namespace BakuganGame
                         }
                     }
 
-                    // Вывод сообщений о результатах боя и удаление побежденных бакуганов
+                    // If at least one winner has set a death card, the losers die
+                    bool winnersHasDoomCard = false;
                     foreach (Bakugan bakugan in innerList.ToList())
                     {
-                        // Если карта опустела окончательно сделать правильную очистку карты ворот
-                        // Нужна модийикация списка
+                        if (winnerTeams.Contains(bakugan.team))
+                        {
+                            winnersHasDoomCard = winnersHasDoomCard || field.brawler[bakugan.owner].setDoom;
+                        }
+                    }
+
+
+
+                    // Displaying messages about the results of the battle and deleting defeated Bakugan
+                    foreach (Bakugan bakugan in innerList.ToList())
+                    {
+                        // If the map is completely empty, do a proper clearing of the gate map
+                        // Need to modify the list
 
 
                         field.gate[bakugan.x, bakugan.y].bakugan.RemoveAll(x => x == bakugan);
@@ -1172,10 +1309,13 @@ namespace BakuganGame
                         else
                         {
                             field.brawler[bakugan.owner].loseBakugan++;
-                            field.brawler[bakugan.owner].bakugan[bakugan.bakuganID].state = BakuState.KnockedOut;
+                            if (winnersHasDoomCard)
+                                field.brawler[bakugan.owner].bakugan[bakugan.bakuganID].state = BakuState.Killed;
+                            else
+                                field.brawler[bakugan.owner].bakugan[bakugan.bakuganID].state = BakuState.KnockedOut;
                         }
 
-                        // Поиск и удаление бакуганов из BattleLink
+                        // Find and remove Bakugan from BattleLink
                         foreach (List<Bakugan> innerList2 in field.battleLink)
                             innerList2.RemoveAll(x => x == bakugan);
 

@@ -17,23 +17,17 @@ namespace BakuganGame
         Killed
     }
     /*
-     Цель: создать универсальный алгоритм ведения боя при любых условиях
-     Входные данные (из конфига): 
-          * NbrBaku - Количество доступных бакуганов
-          * NbrTeam - Количество команд 
-          * NbrBraw - Количество бойцов (независимо от команды)
-          *           Бойцы с фиксированным арсеналом
-          *           и принадлежность к команде
-     Константы:
-          * MaxAvGtInGame = NbrBaku - Количество доступных карт ворот у бойца за игру
-          * MaxAvAbInGame = NbrBaku - Количество доступных карт способностей у бойца за игру
-          * MaxAvCrd = 3*NbrBaku - Доступные в арсенале карты способностей (ссылаются по ID существующего справочника)
-          * MaxFieldSize = NbrBaku*NbrBraw - Максимальный размер поля игры (количество ворот)
-          * MaxGateSize = NbrBaku*NbrBraw - Максимальная вместимость карты ворот
-     Выходные данные:
-          * Список победивших игроков и начисляемых очков
-          * Победившая команда
-          * Количество оставшихся у победителей бакуганов 
+     Purpose: to create a universal algorithm for conducting combat under any conditions
+     Input data (from config):
+          * NbrBaku - Number of Bakugan available
+          * NbrTeam - Number of teams
+          * NbrBraw - Number of fighters (regardless of team)
+          * Fighters with a fixed arsenal
+          * and team affiliation
+     Output:
+          * List of winning players and accrued points
+          * The number of Bakugan left to the winners
+          * Killed and stolen Bakugan
     */
     class Program
     {
@@ -42,24 +36,30 @@ namespace BakuganGame
         {
             while (!Console.KeyAvailable)
             {
-                // Ожидание нажатия клавиши
+                // Waiting for a keypress
             }
 
             key = Console.ReadKey(true);
         }
         public static void Exit(Field field)
         {
+            // Deactivate all ability cards
             for (int i = 0; i < field.NbrBraw; i++)
                 for (int j = 0; j < 3 * field.NbrBaku; j++)
                     if (field.brawler[i].abilityCard[j].isActivated)
                         field.brawler[i].abilityCard[j].deactivate();
 
+
+            // Remove all cards from the field
             for (int i = 0; i < field.NbrBraw; i++)
                 for (int j = 0; j < field.NbrBaku; j++)
                     if (field.gate[i, j].isBusy)
                         field.gate[i, j].removePlayerGate();
 
+
+            // Print to log file
             field.printAppLog();
+
 
             Console.Clear();
             Console.WriteLine("Permanent exit thougth the ESC. All battle information saved in AppLot.txt");
@@ -69,22 +69,25 @@ namespace BakuganGame
 
         static void Main(string[] args)
         {
-            // Пункт 1: Вытащить из файла вводные данные
-            //          Начать заполнять поле информацией по бойцам
+            // Step 1: Extract input data from the file
+            // Start filling in the field with information on fighters
             Field field = new Field();
             field.SortBrawlers();
 
 
             ConsoleKeyInfo key =  Console.ReadKey(true);
-            while (true)// Пока не завершиться программа
+            while (true)
             {
+                // Waiting for a key press
                 waitTillPressed(ref key);
 
-                // Управление картой
-                field.controlField(key);//WASD 
-                field.controlInGame(key); 
 
-                // Выход из игры
+                // Map and menu management
+                field.controlField(key);//WASD 
+                field.controlInGame(key); // ARROWS, ENTER and BACKSPACE
+
+
+                // Sudden exit from the game
                 if (key.Key == ConsoleKey.Escape)
                 {
                     Exit(field);
@@ -94,6 +97,8 @@ namespace BakuganGame
                     break;
                 }
 
+
+                // Counting all killed and destroyed Bakugan from each team
                 uint[] teamKilledCount = new uint[field.NbrTeam];
                 int[] teamBrawCount = new int[field.NbrTeam];
 
@@ -109,7 +114,7 @@ namespace BakuganGame
                     }
 
 
-                // ДОРАБОТАТЬ 
+                // The condition for exiting the game based on the destroyed Bakugan
                 int winTeam = 0;
                 int winCont = 0;
                 for (int i = 0; i < field.NbrTeam; i++)
@@ -123,8 +128,6 @@ namespace BakuganGame
                         winCont++;
                     }
                 }
-
-
                 if (winCont == field.NbrTeam - 1)
                 {
                     Exit(field);
@@ -133,29 +136,13 @@ namespace BakuganGame
                 }
 
 
-
-                // Пункт 2.1: Запустить бесконечный цикл по каждому игроку (Очередь queueMain)
-                /*
-                if (key.Key == ConsoleKey.Q)
-                    field.brawler[0].useAbility(0,0);
-                */
-
-
-                //field.brawler[0].useGate((int)field.currGateX, (int)field.currGateY);
-
-                // Пункт 2.2: Если завершится локальный бой, вывести выходные данные
-
-
-
-                // Пункт 2.3: Выводим изображение
-
+                // Item 2.3: Displaying the image
                 Console.Clear();
 
                 field.drawField();
                 field.drawFieldInfo();
                 field.drawGateInfo();
                 field.drawControl();
-
                 field.drawBattleLink();
 
                 /*

@@ -10,46 +10,71 @@ namespace BakuganGame
 {
     internal class Brawler
     {   
-        public string name { get; set; }
-        public ulong BID{ get; set; }
-        public ulong rank { get; set; }
+        // BRAWLER MAIN INFORMATION SEGMENT
+        public string name { get; set; }// name of brawler
+        public ulong BID{ get; set; }// unique Brawler Identification number in World System
+        public ulong rank { get; set; }// current rank in battle. Just for read
+
+
+        //The amount of the bank check to be collected or contributed
+        //in cash to the player's bank account EBoV at the end of the battle
         public double money { get; set; }
-        public uint teamID { get; set; }   // 0 1 2 3 4
-        public uint brawlerID { get; set; }   // уникальный номер в списке игроков
-        public uint queueID { get; set; }// 0 1 2 3 4 5 6 очередь в игре
-
-        bool inGame = false;// Все еще играет?
-
-        public bool avDoom { get; set; }// Карта смерти в наличии?
-        public bool setDoom { get; set; }// Карта смерти установлена?
-
-        uint winBakugan = 0;// выиграл бакугана
-        public uint loseBakugan{ get; set; }// потерял своих бакуганов
-
-        public uint usedGateCard{ get; private set; }  // max NbrBaku
-        public uint usedAbilityCard{ get; private set; }  // max NbrBaku
+        
 
 
-        Field field;//Боец ориентируется в пространстве
+        // BRAWLER DOOMCARD SEGMENT
+        public bool avDoom { get; set; }// Is doom card in pocket?
+        public bool setDoom { get; set; }// Is doom card set on field?
+
+
+
+        // BRAWLER IN-BATTLE INFORMATION SEGMENT
+        bool inGame = false;// Is still playing?
+        uint winBakugan = 0;
+        public uint loseBakugan { get; set; }
+
+        public uint teamID { get; set; } //ID of team. 0 - is Spectator. Only non-null values are allowed for battle
+        public uint brawlerID { get; set; } //ID in field. The value is assigned in the order in the battle.xml file
+        public uint queueID { get; set; }// Queue in game. In (0,NbrBraw-1). Sorting by field.SortBrawlers();
+
+        public uint usedGateCard { get; private set; }  // max NbrBaku
+        public uint usedAbilityCard { get; private set; }  // max NbrBaku
+
+
+        // MUST BE PRIVATE IN FUTURE
         public Bakugan[] bakugan;
-        public AbilityCard[] abilityCard { get; private set; } // в будущем должен быть приватный
-        public GateCard[] gateCard { get; private set; } // в будущем должен быть приватный
+        public AbilityCard[] abilityCard { get; private set; } 
+        public GateCard[] gateCard { get; private set; }
 
-        public Brawler (uint NbrBaku, uint NbrTeam, uint NbrBraw, uint brawlerID, Field field)
+
+        // I could use the Singleton design pattern here,
+        // but I expect to expand the application to simulate several simultaneous battles,
+        // which can be greatly hindered by the uniqueness of the Field class
+        // executed in the style of the Singleton pattern
+        Field field;
+
+
+
+
+        /// <summary>
+        /// Brawler constructor. Allocate memory for internal objects
+        /// </summary>
+        /// <param name="brawlerID"> Brawler ID according to the order in the battle.xml file </param>
+        public Brawler ( uint brawlerID, Field field)
         {
             setDoom = false;
             this.field = field;
 
-            bakugan = new Bakugan[NbrBaku];
-            for (int i = 0; i < NbrBaku; i++)
+            bakugan = new Bakugan[field.NbrBaku];
+            for (int i = 0; i < field.NbrBaku; i++)
                 bakugan[i] = new Bakugan();
 
-            abilityCard = new AbilityCard[3*NbrBaku];
-            for (int i = 0; i < 3*NbrBaku; i++)
+            abilityCard = new AbilityCard[3*field.NbrBaku];
+            for (int i = 0; i < 3*field.NbrBaku; i++)
                 abilityCard[i] = new AbilityCard(field);
 
-            gateCard = new GateCard[NbrBaku];
-            for (int i = 0; i < NbrBaku; i++)
+            gateCard = new GateCard[field.NbrBaku];
+            for (int i = 0; i < field.NbrBaku; i++)
                 gateCard[i] = new GateCard(field);
 
             usedGateCard = 0;
@@ -57,15 +82,15 @@ namespace BakuganGame
 
             this.brawlerID = brawlerID;
         }
-        
+
 
         /// <summary>
-        /// Боец насильно инициирует бросок бакугана bakuganID на ворота (x,y)
+        /// Brawler forcibly initiates a bakuganID bakugan throw at gate (x,y)
         /// </summary>
-        /// <param name="x">Координата ворот по x.</param>
-        /// <param name="y">Координата ворот по y.</param>
-        /// <param name="bakuganID">ID бакугана из арсенала, которого хотим отправить.</param>
-        /// <returns>Возвращает true - если установить бакугана удалось</returns>
+        /// <param name="x">Gate x coordinate.</param>
+        /// <param name="y">Gate y coordinate.</param>
+        /// <param name="bakuganID">The ID of the Bakugan from the arsenal we want to send on battle.</param>
+        /// <returns>Returns true - if bakugan was successfully installed</returns>
         public bool ForceThrowBakugan(int x, int y, int bakuganID)
         {
             int gateBakuID = field.gate[x, y].bakugan.Count;
@@ -81,12 +106,12 @@ namespace BakuganGame
                 {
 
                     // BattleLink
-                    bool isYourTeam = false;// Есть ли бакуганы из твоей команды
-                    int enemyCount = 0;// Количество вражеских бакуганов
-                    int friendCount = 0;// Количество дружеского бакугана
-                    bool bakuInBattleLink = false;// Есть ли бакуган в списке battleLink
+                    bool isYourTeam = false;// Are there Bakugan on your team?
+                    int enemyCount = 0;// Number of enemy Bakugan
+                    int friendCount = 0;// Number of friendly Bakugan
+                    bool bakuInBattleLink = false;// Is there a bakugan in the battleLink list
 
-                    // Проверка является ли карта дружеской или вражеской
+                    // Checking if a card is friendly or enemy
                     for (int i = 0; i < gateBakuID; i++)
                     {
                         if (field.gate[x, y].bakugan[i].team != bakugan[bakuganID].team)
@@ -97,35 +122,37 @@ namespace BakuganGame
                         isYourTeam = isYourTeam || field.gate[x, y].bakugan[i].team == bakugan[bakuganID].team;
                     }
 
-                    // Ведем поиск каждого бакугана в списке BattleLink 
-                    // Когда будет готов код для работы карт (изменения battleLink)
-                    // Частично изменим код в случае если будут одни союзники на карте
-                    // НЕ ПРОДУМАНО ЕСЛИ НА КАРТЕ ОДИН ИЛИ НЕСКОЛЬКО СОЮЗНИКОВ 
+                    // Searching For Each Bakugan In The BattleLink List
+                    // When the code for maps is ready (battleLink changes)
+                    // Partially change the code if there are only allies on the map
+                    // NOT THOUGHT IF THE MAP IS ONE OR MORE ALLIES
 
                     bool myBakuInList = false;
                     bool enBakuFound = false;
-                    // Для всех бакуганов на непустой карте
+
+                    // For all Bakugan on a non-empty map
                     for (int i = 0; i < gateBakuID; i++)
                     {
                         int countBL = field.battleLink.Count;
 
-                        // Для всех вражеских бакуганов
-                        if (field.gate[x, y].bakugan[i].team != bakugan[bakuganID].team && field.gate[x, y].bakugan[i].state != BakuState.DoesntExist)
+                        // For All Enemy Bakugan
+                        if (field.gate[x, y].bakugan[i].team != bakugan[bakuganID].team && 
+                            field.gate[x, y].bakugan[i].state != BakuState.DoesntExist)
                         {
 
-                            // Ищем вражеского бакугана по всему BattleLink
+                            // Looking for enemy Bakugan all over BattleLink
                             foreach (List<Bakugan> innerList in field.battleLink)
                             {
                                 foreach (Bakugan obj in Enumerable.Reverse(innerList))
                                 //for(int obj =0; obj < innerList.Count; obj++)
                                 {
-                                    // Мы уже есть в текущем подсписке. Дубликаты нашего бакугана нам не нужны 
+                                    // We are already in the current sublist. We don't need duplicates of our Bakugan
                                     if (obj == bakugan[bakuganID])
                                     {
                                         myBakuInList = true;
                                         //break;
                                     }
-                                    // Вражеский бакуган уже учавствует в битве, присоединимся к нему
+                                    // Enemy Bakugan is already in the battle, let's join him
                                     if (obj == field.gate[x, y].bakugan[i] )
                                     {
                                         enBakuFound = true;
@@ -138,8 +165,8 @@ namespace BakuganGame
                                 }
                             }
 
-                            // Для пустого battleLink
-                            // При отсутсвии бакугана в списке battleLink сначала добавляем себя, затем другого бакугана
+                            // For an empty battleLink
+                            // If there is no bakugan in the battleLink list, first add yourself, then another bakugan
                             if ((!enBakuFound || countBL == 0) && !myBakuInList)
                             {
                                 field.battleLink.Add(new List<Bakugan>());
@@ -147,7 +174,8 @@ namespace BakuganGame
                                 field.battleLink[countBL - 1].Add(bakugan[bakuganID]);
                                 field.battleLink[countBL - 1].Add(field.gate[x, y].bakugan[i]);
                             }
-                            // Если мы уже нашли своего бакугана но не добавили нашего врага в список
+
+                            // If we've already found our Bakugan but haven't added our enemy to the list
                             if (myBakuInList && !enBakuFound)
                             {
                                 field.battleLink[countBL - 1].Add(field.gate[x, y].bakugan[i]);
@@ -156,16 +184,13 @@ namespace BakuganGame
                     }
 
 
-                    // Добавляем нашего бакугана на поле
+                    // Adding our Bakugan to the field
                     field.gate[x, y].bakugan.Add(bakugan[bakuganID]);
-                    //field.gate[x, y].bakugan[(int)gateBakuID] = bakugan[bakuganID];
 
                     bakugan[bakuganID].x = x;
                     bakugan[bakuganID].y = y;
                     bakugan[bakuganID].bakuganInGateID = (int)gateBakuID;
                     bakugan[bakuganID].state = BakuState.OnGate;
-
-                    //field.gate[x, y].bakuganCount++;
 
                     field.setAppLog($"Brawler {brawlerID} message: bakugan {bakuganID} placed in gate ({x}, {y})");
 
@@ -221,16 +246,16 @@ namespace BakuganGame
 
 
         /// <summary>
-        /// Боец активирует карту способности из арсенала под номером abilityID
+        /// The brawler activates an ability card from the arsenal with the number abilityID
         /// </summary>
-        /// <param name="abilityID">Номер карты в арсенале</param>
-        /// <param name="bakuganID">Бакуган, на котором будет использована карта способности</param>
-        /// <returns>Возвращает true - если удалось активировать споосбность</returns>
+        /// <param name="abilityID">Card number in the arsenal</param>
+        /// <param name="bakuganID">Bakugan on which the ability card will be used</param>
+        /// <returns>Returns true - if it was possible to activate the ability</returns>
         public bool useAbility(uint abilityID,uint bakuganID)
         {
             if (field.NbrBaku >= usedAbilityCard)
             {
-                bool ableActivate = abilityCard[abilityID].activate(bakuganID);
+                bool ableActivate = abilityCard[abilityID].activate();
                 
                 if (ableActivate)
                 {
@@ -250,14 +275,14 @@ namespace BakuganGame
             }
             
         }
-        
+
 
         /// <summary>
-        /// Активирует карту с позицией (x,y)
+        /// Activates map with position (x,y)
         /// </summary>
-        /// <param name="x">Координата ворот по x.</param>
-        /// <param name="y">Координата ворот по y.</param>
-        /// <returns>Возвращает true - если удалось активировать карту</returns>
+        /// <param name="x">Gate x coordinate.</param>
+        /// <param name="y">Gate y coordinate.</param>
+        /// <returns>Returns true - if it was possible to activate the card</returns>
         public bool useGate(int x, int y)
         {
             if (0 <= x && x < field.NbrBraw &&
@@ -309,12 +334,12 @@ namespace BakuganGame
 
 
         /// <summary>
-        /// Размещает карту ворот gateID с координатами (x,y)
+        /// Places a gateID gate map at coordinates (x,y)
         /// </summary>
-        /// <param name="x">Координата ворот по x.</param>
-        /// <param name="y">Координата ворот по y.</param>
-        /// <param name="gateID">Номер карты ворот в инвентаре.</param>
-        /// <returns>Возвращает true - если удалось разместить карту</returns>
+        /// <param name="x">Gate x coordinate.</param>
+        /// <param name="y">Gate y coordinate.</param>
+        /// <param name="gateID">Gate card number in inventory.</param>
+        /// <returns>Returns true - if it was possible to place the map</returns>
         public bool setGate(int x, int y, uint gateID)
         {
             //Console.WriteLine(field.gate[x, y].isBusy);
@@ -365,9 +390,9 @@ namespace BakuganGame
 
 
         /// <summary>
-        /// Установить карту смерти
+        /// Set Doom Card
         /// </summary>
-        /// <returns>Возвращает true - если удалось правильно заполнить поле</returns>
+        /// <returns>Returns true - if it was possible to fill in the field correctly</returns>
         public bool setDoomCard()
         {
             if (avDoom && !setDoom )
@@ -386,12 +411,12 @@ namespace BakuganGame
                 return false; 
             }
         }
-        
+
 
         /// <summary>
-        /// Убрать карту смерти
+        /// Remove Doom Card
         /// </summary>
-        /// <returns>Возвращает true - если удалось правильно заполнить поле</returns>
+        /// <returns>Returns true - if it was possible to fill in the field correctly</returns>
         public bool removeDoomCard()
         {
             if (avDoom && setDoom)

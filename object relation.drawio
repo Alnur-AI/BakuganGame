@@ -1,6 +1,6 @@
-<mxfile host="app.diagrams.net" modified="2023-03-26T12:29:02.447Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.1661.54" etag="oF7npcSz5ZBgiCEKls8H" version="21.1.1" type="device">
+<mxfile host="app.diagrams.net" modified="2023-03-30T08:46:29.668Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36 Edg/111.0.1661.54" etag="QzvfcWT69jde8PQ5rwCW" version="21.1.1" type="device">
   <diagram name="Страница 1" id="a3P9u6cnhdrN-g0bfrfS">
-    <mxGraphModel dx="764" dy="1616" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="993" dy="1750" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -445,41 +445,47 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="TvQbg-3f5H8hRgL3yC9k-20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="TvQbg-3f5H8hRgL3yC9k-2" target="TvQbg-3f5H8hRgL3yC9k-10">
+        <mxCell id="TvQbg-3f5H8hRgL3yC9k-20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="TvQbg-3f5H8hRgL3yC9k-2" target="TvQbg-3f5H8hRgL3yC9k-10" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="TvQbg-3f5H8hRgL3yC9k-2" value="&lt;b&gt;2) Throw bakugan&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="TvQbg-3f5H8hRgL3yC9k-2" value="&lt;b&gt;2) Throw bakugan&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="3470" y="-730" width="181" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="TvQbg-3f5H8hRgL3yC9k-3" value="&lt;b&gt;3) Use Ability Card&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="8WkggqP_y9wArAeP_Ihp-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="TvQbg-3f5H8hRgL3yC9k-3" target="8WkggqP_y9wArAeP_Ihp-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="TvQbg-3f5H8hRgL3yC9k-3" value="&lt;b&gt;3) Use Ability Card&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="3470" y="-660" width="181" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="TvQbg-3f5H8hRgL3yC9k-4" value="&lt;b&gt;4) Open Gate&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="TvQbg-3f5H8hRgL3yC9k-4" value="&lt;b&gt;4) Open Gate&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="3470" y="-584" width="178" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="TvQbg-3f5H8hRgL3yC9k-21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="TvQbg-3f5H8hRgL3yC9k-5" target="TvQbg-3f5H8hRgL3yC9k-9">
+        <mxCell id="TvQbg-3f5H8hRgL3yC9k-21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="TvQbg-3f5H8hRgL3yC9k-5" target="TvQbg-3f5H8hRgL3yC9k-9" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="TvQbg-3f5H8hRgL3yC9k-5" value="&lt;b&gt;1) Set Gate Card&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="TvQbg-3f5H8hRgL3yC9k-5" value="&lt;b&gt;1) Set Gate Card&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="3470" y="-800" width="181" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="TvQbg-3f5H8hRgL3yC9k-6" value="&lt;b&gt;5) Doom Card: Off&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="TvQbg-3f5H8hRgL3yC9k-6" value="&lt;b&gt;5) Doom Card: Off&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="3471.5" y="-510" width="178" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="TvQbg-3f5H8hRgL3yC9k-16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="TvQbg-3f5H8hRgL3yC9k-8" target="TvQbg-3f5H8hRgL3yC9k-15">
+        <mxCell id="TvQbg-3f5H8hRgL3yC9k-16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="TvQbg-3f5H8hRgL3yC9k-8" target="TvQbg-3f5H8hRgL3yC9k-15" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="TvQbg-3f5H8hRgL3yC9k-8" value="&lt;b&gt;6) Skip turn&lt;br&gt;&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="TvQbg-3f5H8hRgL3yC9k-8" value="&lt;b&gt;6) Skip turn&lt;br&gt;&lt;/b&gt;" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="3473" y="-440" width="178" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="TvQbg-3f5H8hRgL3yC9k-9" value="Choice gate:&lt;br&gt;Gate 1&lt;br&gt;Gate 2&lt;br&gt;Gate 3" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="TvQbg-3f5H8hRgL3yC9k-9" value="Choice gate:&lt;br&gt;Gate 1&lt;br&gt;Gate 2&lt;br&gt;Gate 3" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="3790" y="-800" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="TvQbg-3f5H8hRgL3yC9k-10" value="Choice bakugan:&lt;br&gt;Gate 1&lt;br&gt;Gate 2&lt;br&gt;Gate 3" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="TvQbg-3f5H8hRgL3yC9k-10" value="Choice bakugan:&lt;br&gt;Gate 1&lt;br&gt;Gate 2&lt;br&gt;Gate 3" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="3790" y="-730" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="TvQbg-3f5H8hRgL3yC9k-15" value="You sure?&lt;br&gt;Yes&lt;br&gt;No" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="TvQbg-3f5H8hRgL3yC9k-15" value="You sure?&lt;br&gt;Yes&lt;br&gt;No" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="3790" y="-440" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="8WkggqP_y9wArAeP_Ihp-1" value="Choice ability:&lt;br&gt;Ability&amp;nbsp;1&lt;br&gt;Ability 2&lt;br&gt;Ability 3" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="3790" y="-660" width="120" height="60" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

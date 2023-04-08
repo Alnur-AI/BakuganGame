@@ -7,54 +7,50 @@ using System.Threading.Tasks;
 namespace BakuganGame
 {
     /*
-    Ворота являются исчисляемой единицей поля. Каждая карта ворот:
-        * Имеет координаты на поле
-        * Количество бакуганов на ней
-        * Ссылается на карту ворот (конкретный тип)
+    Gates are the countable unit of the field. Each Gate Card:
+        * Has coordinates on the field
+        * Number of Bakugan on it
+        * Refers to gate card (specific type)
     */
     internal class Gate
     {
-        
+        //Goal coordinates on the field
         public int x { get; private set; }
         public int y { get; private set; }
 
-        public bool isBusy = false;// стоит чья-то карта
-        //public uint bakuganCount { get; set; }
+       
+        public bool isBusy = false; // there is someone's card on the gate
 
-        public uint gateOwner { get; private set; }// 0 - ничья, иначе айди бойца
 
-        Field field; // Воротам важно знать что происходит вокруг
-        //public Bakugan[] bakugan; //ссылка на бакуганов установленных на карте
-        public List<Bakugan> bakugan { get; set; }
-        public GateCard gateCard; //установленная карта ворот
+        public int gateOwner { get; private set; }// ] Brawler ID
+
+
+        public List<Bakugan> bakugan { get; set; }//link to bakugan installed on the map
+        public GateCard gateCard; //link to an installed gate card owned by an individual fighter
+        Field field; // It is important for the gate to know what is happening around, so a link to the field is needed
 
         public Gate(uint NbrBaku, uint NbrTeam, uint NbrBraw, int x, int y, Field field) 
         {
             this.x = x;
             this.y = y;
-
-            //bakuganCount = 0;
             this.field = field;
+            gateOwner = -1;
 
-            //bakugan = new Bakugan[NbrBaku * NbrBraw];
             bakugan = new List<Bakugan>();
             gateCard = new GateCard(field);
-
-
-
         }
 
 
         /// <summary>
-        /// Принудительно поместить карту gateID от бойца brawlerID 
+        /// Force put gateID card from brawlerID fighter
         /// </summary>
-        /// <param name="brawlerID">ID игрока</param>
-        /// <param name="gateID">ID карты ворот у игрока</param>
-        /// <returns>Возвращает true - если установить бакугана удалось</returns>
+        /// <param name="brawlerID">Player ID</param>
+        /// <param name="gateID">Player's Gate Card ID</param>
+        /// <returns>Returns true - if bakugan was successfully installed</returns>
         public bool placePlayerGate(uint brawlerID, uint gateID)
         {
             isBusy = true;
-            gateOwner = brawlerID;
+            gateOwner = (int)brawlerID;
             gateCard = field.brawler[brawlerID].gateCard[gateID];
             field.brawler[brawlerID].gateCard[gateID].isPlaced = true;
 
@@ -65,19 +61,18 @@ namespace BakuganGame
 
 
         /// <summary>
-        /// Удалить с ворот уже установленную карту
+        /// Remove an already installed card from the gate
         /// </summary>
-        /// <returns>Возвращает true - если удалось удалить карту</returns>
+        /// <returns>Returns true - if the map was successfully removed</returns>
         public bool removePlayerGate()
         {
             if (isBusy)
             {
                 field.setAppLog($"Gate ({x},{y}) message: gate erased, removed card from gate ");
-                gateCard.removeFromField();//нужна причина почему мы удаляем: конец битвы, конец игры
+                gateCard.removeFromField();//need a reason why we delete: end of battle, end of game
+
                 isBusy = false;
                 bakugan = new List<Bakugan>();
-                //bakuganCount = 0;
-
                 gateCard = new GateCard(field);
 
                 return true;

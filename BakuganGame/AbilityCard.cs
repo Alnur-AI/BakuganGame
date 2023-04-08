@@ -10,15 +10,15 @@ namespace BakuganGame
 {
     internal class AbilityCard
     {
-        uint teamID; // нужно чтобы карта отличала врагов от друзей
-        uint brawlerID;// Ссылка на пользователя карты способности
-        public uint abilityID { get; set; }// Нужно понимать порядок карты в инвентаре
-        public uint abilityType { get; set; }
+        uint teamID; // you need to distinguish enemies from friends on map
+        uint brawlerID;// Ability Card User Link
+        public uint abilityID { get; set; }// You need to understand the order of the card in the inventory
+        public uint abilityType { get; set; }// ability tipe for activate()
 
         public bool isActivated{ get; set; }
         public bool isUsed{ get; set; }
 
-        Field field;//Логика карты опирается на ситуацию на поле боя
+        Field field;// Map logic is based on the situation on the battlefield
 
         public AbilityCard(Field field)
         {
@@ -30,14 +30,14 @@ namespace BakuganGame
 
 
         /// <summary>
-        /// Определим карту, зная код: команды, игрока, бакугана, способности. И вид способности (см функцию activate)
+        /// Define the card, knowing the code: team, player, bakugan, ability. And the kind of ability (see the activate function)
         /// </summary>
-        /// <param name="teamID">ID команды</param>
-        /// <param name="brawlerID">ID бойца (Карта должна знать порядок своего владельца)</param>
-        /// <param name="bakuganID">ID бакугана в инвентаре за которым закреплена способность</param>
-        /// <param name="abilityID">ID способности в инвентаре (необходимо чтобы карта знала свой порядок в инвентаре)</param>
-        /// <param name="abilityType">Тип карты способности (см функцию activate)</param>
-        /// <returns>Возвращает true - если установить бакугана удалось</returns>
+        /// <param name="teamID">team ID</param>
+        /// <param name="brawlerID">Brawler ID (The card must know the order of its owner)</param>
+        /// <param name="bakuganID">ID of the bakugan in the inventory that the ability is assigned to</param>
+        /// <param name="abilityID">ID of the ability in the inventory (it is necessary that the card knows its order in the inventory)</param>
+        /// <param name="abilityType">Ability card type (see activate function)</param>
+        /// <returns>Returns true - if Bakugan was installed successfully</returns>
         public bool define(uint teamID, uint brawlerID, uint abilityID)
         {
             this.teamID = teamID;
@@ -49,26 +49,267 @@ namespace BakuganGame
 
 
         /// <summary>
-        /// Активировать работу карты способности (Здесь описана основная логика всех карт)
+        /// Activate the operation of the ability card (The main logic of all cards is described here)
         /// </summary>
-        /// <returns>Возвращает true - если успешно завершилось</returns>
-        public bool activate(uint bakuganID)
+        /// <returns>Returns true - if successful</returns>
+        public bool activate()
         {
-            // В будущем важно проверять возможно ли впринципе активировать функцию. Вдруг на 
-            // поле особые условия и нам нельзя активировать карту
+            // In the future, it is important to check whether it is possible in principle to activate the function. 
+            // Suddenly on special conditions field and we can't activate the card
             if (!isUsed && !isActivated && abilityType != 0)
             {
                 switch (abilityType)
                 {
-                    case 1://Привабить 100 себе
-                        field.brawler[brawlerID].bakugan[bakuganID].g += 100;
+                    case 1: //Water Refrain:
+                            //Nullifies and blocks the opponent's abilities from activating for a short time.
+
+                        // 1) Search through the list of activated abilities for the enemy card we want to cancel
+                        // 2) After selecting the desired ability in the menu, deactivate it with deactivate
+                        // 3) After deactivation, we prohibit the enemy fighter from using the ability card when he walks
                         break;
-                    case 2://Прибавить 100 себе и удалить 100 всем врагам
-                        field.brawler[brawlerID].bakugan[bakuganID].g += 100;
-                        for (int i = 0; i < field.NbrBraw; i++)
-                            if (i != brawlerID && teamID != field.brawler[i].teamID)
-                                field.brawler[i].bakugan[bakuganID].g -= 100;
+
+
+
+                    case 2: //Aquos Quadruple Chain Attack - Blue Lagoon Force Gate Special:
+                            //(requires 4 Aquos Bakugan on your team to activate) 
+
+                        // 1) Check the battlefield for the presence of 4 aquas fighters belonging to our team
+                        // 2) If there are 4 fighters on the field, then we destroy or kill all Bakugan on the battlefield, except for the activating card
+                        // 3) The surviving Bakugan a priori becomes the winner of all battleLinks on the field
+
                         break;
+
+
+
+                    case 3: //Dive Mirage Type 1:
+                            //Moves Bakugan to another Gate Card, making the Gate Card it goes on nullified. 
+
+                        // 1) Move the bakugan to any map of your choice (when choosing a place through WASD, press Enter)
+                        // 2) After moving, we cancel the gate map we hit
+                        break;
+
+
+
+                    case 4: //Dive Mirage Type 2:
+                            //Moves Griffon to a different Gate Card and prevents the opponent from activating it.  
+
+                        //1) Move the bakugan to any map of your choice (when choosing a place through WASD, press Enter)
+                        //2) After moving the gate card, it will never be possible to activate it again
+                        break;
+
+
+
+                    case 5: //Spiced Assault
+                            //Adds 100 Gs to Centipoid and subtracts 100 Gs from each opponent.
+
+                        //1) Add 100 points to the player
+                        //2) Remove 100 points for all players on the battlefield
+                        break;
+
+
+
+                    case 6: //Grand Down Type 1:
+                            //Nullifies the opponent's Gate Card. 
+
+                        // 1) Select the gate card we want to reset
+                        // 2) If it is enemy, then deactivate it
+                        break;
+
+
+
+                    case 7: //Grand Down Type 2:
+                            //Nullifies everyone's Gate Card. 
+
+                        // 1) Select the gate card we want to reset
+                        // 2) If it exists, then deactivate it
+                        break;
+
+
+
+                    case 8: //Auragano Revenge
+                            //Adds 100 Gs to Hydranoid and subtracts 100 Gs from each opponent. 
+
+                        //1) Add 100 points to the player
+                        //2) Remove 100 points for all players on the battlefield
+
+                        //field.brawler[brawlerID].bakugan[bakuganID].g += 100;
+                        //for (int i = 0; i < field.NbrBraw; i++)
+                        //if (i != brawlerID && teamID != field.brawler[i].teamID)
+                        //field.brawler[i].bakugan[bakuganID].g -= 100;
+
+                        break;
+
+
+
+                    case 9: //Darkus Gravity:
+                            //Adds another Darkus Bakugan to the battle. 
+
+                        // 1) In the menu, select the desired Bakugan Darkus
+                        // 2) Send this bakugan to the selected gate card
+                        break;
+
+
+
+                    case 10: //Spiced Slayer
+                             //Adds 100 Gs to Laserman and subtracts 100 Gs from each opponent. 
+
+                        //1) Add 100 points to the player
+                        //2) Remove 100 points for all players on the battlefield
+
+                        //field.brawler[brawlerID].bakugan[bakuganID].g += 100;
+                        //for (int i = 0; i < field.NbrBraw; i++)
+                        //if (i != brawlerID && teamID != field.brawler[i].teamID)
+                        //field.brawler[i].bakugan[bakuganID].g -= 100;
+                        break;
+
+
+
+                    case 11: //Lightning Shield:
+                             //Nullifies the opponent's Gate Card. 
+
+                        break;
+
+
+
+                    case 12: //Haos Freeze Attack
+                             //Nullifies all of the opponent's abilities, stops time and allows you to add more Bakugan to the field. 
+
+                        break;
+
+
+
+                    case 13: //Ability Counter:
+                             //Nullifies the opponent's ability. 
+
+                        break;
+
+
+
+                    case 14: //Lightning Tornado Type 1: 
+                             //Adds 100 Gs to Tigrerra and subtracts 100 Gs from each opponent. 
+
+                        break;
+
+
+
+                    case 15: //Lightning Tornado Type 2: 
+                             //Adds 100 Gs to Griffon and subtracts 100 Gs from each opponent. 
+
+                        break;
+
+
+
+                    case 16: //Shade Ability:
+                             //Nullifies the opponent's abilities anywhere in the field. 
+
+                        break;
+
+
+
+                    case 17: //Rapid Haos Type 1:
+                             //Adds another Haos Bakugan to the battle.
+
+                        break;
+
+
+
+                    case 18: //Rapid Haos Type 2:
+                             //Brings another Bakugan into the battle if there are more than one э
+                             //Pyrus, Aquos, or Haos Bakugan on the field. 
+
+                        break;
+
+
+
+                    case 19: //Fire Wall:
+                             //Subtracts 50 Gs from the opponent. 
+
+                        break;
+
+
+
+                    case 20: //Fire Tornado:
+                             //Adds 100 Gs to Ultimate Dragonoid and subtracts 100 Gs from each opponent. 
+
+                        break;
+
+
+
+                    case 21: //Fire Judge:
+                             //Adds 100 Gs to Ultimate Dragonoid. 
+
+                        break;
+
+
+
+                    case 22: //Rapid Fire:
+                             //Adds another Bakugan to the battle if there are 2 or more Pyrus Bakugan on the field. 
+
+                        break;
+
+
+
+                    case 23: //Power Charge:
+                             //Adds 100 Gs to Saurus and allows him to attack from any part of a field. 
+
+                        break;
+
+
+
+                    case 24: //Grand Slide Type 1: 
+                            //Moves the opponent's Gate Card to anywhere on the field and 
+                            //allows Hammer Gorem to attack if there is a Bakugan on an adjacent card. 
+
+                        break;
+
+
+
+                    case 25: //Grand Slide Type 2: 
+                            //Moves the opponent's Gate Card to anywhere on the field and 
+                            //allows Hammer Gorem to attack if there is a Bakugan on an adjacent card. 
+
+                        break;
+
+
+
+                    case 26: //Copycat: 
+                            //Copies an ability that the opponent used or is using. 
+
+                        break;
+
+
+
+                    case 27: //Scarlet Twister (Crimson Twister): 
+                             //Bee Striker can send any Bakugan on the field back to its owner, 
+                             //but if it does so to save a Bakugan from defeat, 
+                             //Bee Striker is in turn eliminated.
+
+                        break;
+
+
+
+                    case 28: //Blow Away:
+                             //Moves the opponent to another Gate Card. 
+
+                        break;
+
+
+
+                    case 29: //Air Battle:
+                             //Monarus can fly beyond Gate Cards and nullifies the Gate Cards that it lands on. 
+
+                        break;
+
+
+
+
+                        /*
+                         case 6: //
+                                //
+
+                            break;
+                        */
+
                 }
                 isActivated = true;
                 isUsed = true;
@@ -77,14 +318,14 @@ namespace BakuganGame
             }
             else
             {
-                Console.WriteLine("Ability card message: ERROR in activate function");
+                field.setAppLog("Ability card message: ERROR in activate function");
 
-                if (isActivated) 
-                    Console.WriteLine("Why do you try to activate activated card?");
+                if (isActivated)
+                    field.setAppLog("Why do you try to activate activated card?");
                 if (isUsed)
-                    Console.WriteLine("Why do you try to activate used card?");
+                    field.setAppLog("Why do you try to activate used card?");
                 if (abilityType == 0)
-                    Console.WriteLine("Your ability slot is empty");
+                    field.setAppLog("Your ability slot is empty");
 
                 return false;
             }
@@ -92,9 +333,9 @@ namespace BakuganGame
 
 
         /// <summary>
-        /// Дективировать карту cпособности. Происходит при завершении очереди queueBattle
+        /// Deactivate the ability card. Occurs when a queueBattle ends or a sudden impact
         /// </summary>
-        /// <returns>Возвращает true - если успешно завершилось</returns>
+        /// <returns>Returns true - if successful</returns>
         public void deactivate()
         {
             if (isActivated && isUsed)
@@ -104,27 +345,17 @@ namespace BakuganGame
             }
             else
             {
-                Console.WriteLine("Ability card message: ERROR in deactivate function");
+                field.setAppLog("Ability card message: ERROR in deactivate function");
                 
                 if(!isActivated)
-                    Console.WriteLine("Why do you try to deactivate deactivated card?");
+                    field.setAppLog("Why do you try to deactivate deactivated card?");
                 if(!isUsed)
-                    Console.WriteLine("Why do you try to deactivate unused card?");
+                    field.setAppLog("Why do you try to deactivate unused card?");
             }
             
         }
 
 
-        /// <summary>
-        /// Бойцу важно знать обстановку на поле. Добавляем ссылку field на всё поле
-        /// </summary>
-        /// <param name="field">Ссылка на игровое поле</param>
-        /// <returns>Возвращает true - если удалось правильно заполнить поле</returns>
-        public bool setField(Field field)
-        {
-            this.field = field;
-
-            return true;
-        }
+       
     }
 }

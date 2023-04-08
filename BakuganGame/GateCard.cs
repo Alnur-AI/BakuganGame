@@ -10,17 +10,17 @@ namespace BakuganGame
 
     internal class GateCard
     {
-        uint teamID; // нужно чтобы карта отличала врагов от друзей
-        uint brawlerID;// Ссылка на пользователя карты способности
-        public uint gateID{ get; set; }// Нужно понимать порядок карты в инвентаре
-        public uint gateType { get; set; }// 0 - пустая, остальное ссылка на базу
+        uint teamID; //you need a map to distinguish enemies from friends
+        uint brawlerID;// Ability Card User Link
+        public uint gateID{ get; set; }// You need to understand the order of the card in the inventory
+        public uint gateType { get; set; }// 0 - empty, rest type for activate
 
         bool isActivated = false;
         bool isUsed = false;
         public bool isPlaced{ get; set; }//true - in gate,
                                 //false - in pocket
 
-        Field field;//Логика карты опирается на ситуацию на поле боя
+        Field field;//The logic of the map is based on the situation on the battlefield
 
         public GateCard(Field field)
         {
@@ -31,13 +31,13 @@ namespace BakuganGame
 
 
         /// <summary>
-        /// Определим карту, зная код: команды, игрока, бакугана, карт ворот. И вид ворот (см функцию activate)
+        /// Define the card, knowing the code: team, player, bakugan, gate cards. And the view of the gate (see the activate function)
         /// </summary>
-        /// <param name="teamID">ID команды</param>
-        /// <param name="brawlerID">ID бойца</param>
-        /// <param name="gateID">ID карт ворот в инвентаре</param>
-        /// <param name="gateType">Тип карты ворот (см функцию activate)</param>
-        /// <returns>Возвращает true - если установить бакугана удалось</returns>
+        /// <param name="teamID">team ID</param>
+        /// <param name="brawlerID">Brawler ID</param>
+        /// <param name="gateID">ID of gate cards in inventory</param>
+        /// <param name="gateType">Gate card type (see activate function)</param>
+        /// <returns>Returns true - if Bakugan was installed successfully</returns>
         public bool define(uint teamID, uint brawlerID, uint gateID)
         {
             this.teamID = teamID;
@@ -50,9 +50,9 @@ namespace BakuganGame
 
 
         /// <summary>
-        /// Пометить карту как убранную с поля боя
+        /// Mark the card as removed from the battlefield
         /// </summary>
-        /// <returns>Возвращает true - если удалось успешно завершить</returns>
+        /// <returns>Returns true - if successful completion</returns>
         public bool removeFromField()
         {
             if(isPlaced)
@@ -63,8 +63,8 @@ namespace BakuganGame
             }
             else
             {
-                Console.WriteLine("Gate card message: ERROR in removeFromField function");
-                Console.WriteLine("Can't remove card that placed in pocket");
+                field.setAppLog("Gate card message: ERROR in removeFromField function");
+                field.setAppLog("Can't remove card that placed in pocket");
 
                 return false;
             }
@@ -72,21 +72,21 @@ namespace BakuganGame
 
 
         /// <summary>
-        /// Активировать работу карты ворот (Здесь описана основная логика всех карт)
+        /// Activate the operation of the gate card (The main logic of all cards is described here)
         /// </summary>
-        /// <returns>Возвращает true - если успешно завершилось</returns>
+        /// <returns>Returns true - if successful</returns>
         public bool activate(int x, int y)
         {
-            // В будущем важно проверять возможно ли впринципе активировать функцию. Вдруг на 
-            // поле особые условия и нам нельзя активировать карту
+            // In the future, it is important to check whether it is possible in principle to activate the function. Suddenly on
+            // special conditions field and we can't activate the card
             if (!isUsed && !isActivated && gateType != 0)
             {
                 switch (gateType)
                 {
-                    case 1://Привабить 500 себе
+                    case 1://Claim 500 for yourself
                         field.brawler[brawlerID].bakugan[0].g += 500;
                         break;
-                    case 2://Прибавить 500 себе и удалить 100 всем врагам
+                    case 2://Add 500 to yourself and remove 100 to all enemies
                         field.brawler[brawlerID].bakugan[0].g += 500;
                         for (int i = 0; i < field.NbrBraw; i++)
                             if (i != brawlerID && teamID != field.brawler[i].teamID)
@@ -100,14 +100,14 @@ namespace BakuganGame
             }
             else
             {
-                Console.WriteLine("Gate card message: ERROR in activate function");
+                field.setAppLog("Gate card message: ERROR in activate function");
 
                 if (isActivated)
-                    Console.WriteLine("Why do you try to activate activated card?");
+                    field.setAppLog("Why do you try to activate activated card?");
                 if (isUsed)
-                    Console.WriteLine("Why do you try to activate used card?");
+                    field.setAppLog("Why do you try to activate used card?");
                 if (gateType == 0)
-                    Console.WriteLine("Your gate slot is empty");
+                    field.setAppLog("Your gate slot is empty");
 
                 return false;
             }
@@ -115,9 +115,9 @@ namespace BakuganGame
 
 
         /// <summary>
-        /// Дективировать карту ворот. Происходит при завершении очереди queueBattle
+        /// Deactivate the gate map. Occurs when the queueBattle ends.
         /// </summary>
-        /// <returns>Возвращает true - если успешно завершилось</returns>
+        /// <returns>Returns true - if successful</returns>
         public bool deactivate()
         {
             if (isActivated && isUsed)
@@ -129,12 +129,12 @@ namespace BakuganGame
             }
             else
             {
-                Console.WriteLine("Gate card message: ERROR in deactivate function");
+                field.setAppLog("Gate card message: ERROR in deactivate function");
 
                 if (!isActivated)
-                    Console.WriteLine("Why do you try to deactivate deactivated card?");
+                    field.setAppLog("Why do you try to deactivate deactivated card?");
                 if (!isUsed)
-                    Console.WriteLine("Why do you try to deactivate unused card?");
+                    field.setAppLog("Why do you try to deactivate unused card?");
 
                 return false;
             }

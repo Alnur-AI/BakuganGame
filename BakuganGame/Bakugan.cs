@@ -13,8 +13,8 @@ namespace BakuganGame
         //ID in fiel
         public string name { get; set; }
         public uint bakuganID { get; set; }
-        public int bakuganInGateID { get; set; }//ID на вороте (-1 значит что бакуган в инвентаре)
-        
+        public int bakuganInGateID { get; set; }//ID on the gate (-1 means that the bakugan is in inventory)
+
         public int x { get; set; }
         public int y { get; set; }
 
@@ -28,14 +28,14 @@ namespace BakuganGame
         
 
         public uint team  { get; private set; }
-                    // 0 - команда наблюдателей
-                    // 1,2... - все остальные
+                    // 0 - team of observers
+                    // 1,2... - others
         public uint owner { get; private set; }//BrawlerID
 
         //G level
-        public int g { get; set; }// в локальном бою
-        public int gGame { get; set; }// изменен начальный уровень на время игры
-        public int gGlobal { get; set; }// изменен начальный уровень навсегда
+        public int g { get; set; }// G in local combat
+        public int gGame { get; set; }// G changed initial level for the duration of the game
+        public int gGlobal { get; set; }// G changed starting level permanently
 
         //Atribute
         public bool isPyrus { get;  set; }
@@ -55,11 +55,11 @@ namespace BakuganGame
 
 
         /// <summary>
-        /// Определим бакугана, зная код: команды, игрока
+        /// Define Bakugan, knowing the code: team, player
         /// </summary>
-        /// <param name="team">ID команды</param>
-        /// <param name="brawlerID">ID бойца</param>
-        /// <returns>Возвращает true - если установить бакугана удалось</returns>
+        /// <param name="team">Team ID</param>
+        /// <param name="brawlerID">Brawler ID</param>
+        /// <returns>Returns true - if Bakugan was installed successfully</returns>
         public bool define(uint teamID,uint brawlerID,uint bakuganID)
         {
             owner = brawlerID;
@@ -70,11 +70,11 @@ namespace BakuganGame
 
 
         /// <summary>
-        /// Задать свойства бакугана: тип стихии и количество G
+        /// Set Bakugan properties: element type and amount of G
         /// </summary>
-        /// <param name="team">ID команды</param>
-        /// <param name="brawlerID">ID бойца</param>
-        /// <returns>Возвращает true - если установить бакугана удалось</returns>
+        /// <param name="team">Team ID</param>
+        /// <param name="brawlerID">Brawler ID</param>
+        /// <returns>Returns true - if Bakugan was installed successfully</returns>
         public void setBakugan(bool isPyrus, bool isHaos, bool isAquos,
                                 bool isDarkus, bool isSubterra, bool isVentus, int g)
         {
