@@ -1,5 +1,5 @@
 # BakuganGame
-
+![Result](./Logo.png "Results")
 ## About the project
 
 The BakuganGame project is a fan-made game inspired by the combat mechanics of the first season of Bakugan. Our goal is to create game mechanics based on various algorithms and stacks of various technologies to develop programming skills for everyone. The project was created for scientific purposes only and has nothing to do with SpinMaster or the official Bakugan game. We are not trying to appropriate the intellectual work of SpinMaster, but only create a game inspired by this universe.
